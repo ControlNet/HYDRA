@@ -1,0 +1,2 @@
+cuda:
+  0: ["blip", "xvlm", "grounding_dino", "depth"]

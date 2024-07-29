@@ -1,0 +1,52 @@
+E.g., 
+    When the query is 'man in blue holding banana'. Current Instruction is 'Verify if the clothing of the men are blue, and find the best image match for 'holding banana' among all men in blue patches' Executed Python Code: image_patch = ImagePatch(image)\nman_patches=image_patch.find('man')['man']
+    Answer:
+        man_in_blue_patches = []
+        for man_patch in man_patches:
+            if man_patch.verify_property("clothes", "blue"):
+                man_in_blue_patches.append(man_patch)
+        final_answer = best_image_match(man_in_blue_patches, ['holding banana'])
+
+E.g., 
+    When the query is 'bowl of carrots'. Current Instruction is "find bowl, then find the best image match for 'bowl of carrots' among all bowl patches." Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        all_patches = image_patch.find(['bowl'])
+        person_patches = all_patches['bowl'] 
+        final_answer = best_image_match(person_patches, ['bowl of carrots'])
+
+E.g., 
+    When the query is 'middle kid'. Current Instruction is "find kids, then find the middle kid." Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        kid_patches = image_patch.find(['kid'])['kid']
+        middle_kid_patch = get_middle_patch(kid_patches)
+        final_answer = middle_kid_patch
+
+E.g., 
+    When the query is 'left front person'. Current Instruction is "find people, then sort them based on their position from left to right. Sort a half of the people who are on the left-hand side from front to back and get the left front person." Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        # find people
+        people_patches = image_patch.find(['people'])['people']
+        # sort image patches
+        left_to_right_people_patches = get_sorted_patches_left_to_right(people_patches)
+        # only get a half of people who are on left hand size.
+        half_people_on_left_patches = left_to_right_people_patches[0:len(people_patches)//2]
+        # sort people on left from front to back and get the left front person
+        left_front_person = get_sorted_patches_front_to_back(half_people_on_left_patches)[0]
+        final_answer = left_front_person
+
+E.g.,
+    When the query is 'middle lady in orange'. Current Instruction is "find lady, verify if the clothing of the lady are orange, then get the middle patch from lady_in_orange_patches" Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        lady_patches = image_patch.find(['lady'])['lady']
+        lady_in_orange_patches = []
+        for lady_patch in lady_in_orange_patches():
+            if lady_patch.verify_property("clothes", "orange"):
+                lady_in_orange_patches.append(lady_patch)
+        final_answer = get_middle_patch(lady_in_orange_patches)
+
+E.g.,
+    When the query is 'seated player'. Current Instruction is "find player, find the best image match for 'seated player' among all player patches" Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        player_patches = image_patch.find(['player'])['player']
+        best_img_match_seated_player = best_image_match(player_patches, ['seated player'])
+        final_answer = best_img_match_seated_player

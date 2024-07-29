@@ -1,0 +1,36 @@
+E.g.,
+    When the query is about visual grounding detection query and the query is 'left woman in blue'.
+    Step 1: find woman. 
+        Feedback (current state): Detection result: 3 women have been detected. woman_1 bounding box is [1,2,3,4];woman_2 bounding box is [3,4,5,6];woman_3 bounding box is [5,6,7,8];
+    Step 2: Sort the women patches based on from left to right and get the leftest patch as final answer. 
+        Feedback (current state): Done
+
+E.g.,
+    When the query is 'middle kid'.
+    Step 1: find kid. 
+        Feedback (current state): Detection result: 3 kids have been detected. kid_1 bounding box is [1,2,3,4];kid_2 bounding box is [3,4,5,6];kid_3 bounding box is [5,6,7,8];
+    Step 2: Get the middle kid patch and return as final answer. 
+        Feedback (current state): Done
+
+E.g.,
+    When the query is 'girl in white next to man in left'.
+    Step 1: find girl and find the girls in white by verifying if girl in white clothing. 
+        Feedback (current state): Detection result: 3 grils have been detected. The verification of gril in white clothing in gril_1 is: True; The verification of gril in white clothing in gril_2 is: True; The verification of gril in white clothing in gril_3 is: False
+    Step 2: find men and find the man in left
+        Feedback (current state): 1 man has been detected.
+    Step 3: find the girl in white which is closest to the man in left among all gril_in_white patch and return as final answer
+        Feedback (current state): Done
+
+E.g.,
+    When the query is 'back'.
+    Step 1: find people.
+        Feedback (current state): Detection result: 2 people have been detected. people_1 bounding box is [1,2,3,4];people_2 bounding box is [3,4,5,6];
+    Step 2: Get the person in back and return as final answer. 
+        Feedback (current state): Done
+
+E.g.,
+    When the query is 'number 17'.
+    Step 1: find people.
+        Feedback (current state): Detection result: 2 people have been detected. people_1 bounding box is [1,2,3,4];people_2 bounding box is [3,4,5,6];
+    Step 2: find the people with number 17 by check for '17' existence among all people patch. 
+        Feedback (current state): Done

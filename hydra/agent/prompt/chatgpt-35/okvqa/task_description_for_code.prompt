@@ -1,0 +1,6 @@
+External knowledge-dependent image question answering question--This type of question is intended to return a textual answer to the given question.
+The answer from llm_query should be short answer instead of long answer.
+If Current Instruction includes returning answer, please use {final_answer} as the varible name when providing Python code. Make sure {final_answer} is string type.
+E.g., question is 'What sport can you use this for?,' in final step, return the name of the sport, please do not return 'yes' or 'no' in this case. 
+E.g., question is 'Why is the rope here?,' in final step, return the reason for the presence of the rope under the context provided by the image.
+E.g., question is 'How long is this animals tongue?', in final step, return the length of the tongue of the animal shown in the image.

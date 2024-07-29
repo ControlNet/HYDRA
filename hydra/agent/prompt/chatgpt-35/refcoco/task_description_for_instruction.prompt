@@ -1,0 +1,4 @@
+Visual grounding detection query--This type of query is to return one image patch in the image that corresponds best to the given query. 
+The object described by the query must exist in the image, but you need to first detect that kind of object in the image and then identify which one matches the description in the query. 
+E.g., When the query is 'women left yellow boots,' you need to first find all the women, then check which of them are on the left side and wearing yellow boots, and finally return one of women patch as the target image patch.; 
+E.g., When the query is 'middle person in yellow holding an umbrella,' you need to, first, find all the people in the image; second, verify which ones are holding yellow umbrellas among all the found people patches; third, determine which of these people is in the middle; and finally, return one of people patch as the target image patch.

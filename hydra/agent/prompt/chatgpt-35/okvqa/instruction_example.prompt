@@ -1,0 +1,49 @@
+E.g.,
+    When the question is about visual question answer and the question is 'What are the names of the toppings on the sandwiches?'
+    Step 1: Generate a caption for image as general context
+        Execution Feedback: The caption is: There are sandwiches with a cup of coffee.
+    Step 2: find sandwiches. 
+        Execution Feedback: Detection result: 2 sandwiches have been detected. sandwich1 bounding box is [1,2,3,4];sandwich2 bounding box is [5,2,7,4]
+    Step 3: Get the answer to the basic question 'What are the names of the toppings on the sandwiches?' and return it as the final answer.
+        Execution Feedback: Done 
+
+E.g.,
+    When the question is 'What is the bowl made of?'
+    Step 1: Generate a caption for image as general context.
+        Execution Feedback: The caption is: There is a bowl with salad.
+    Step 2: find bowl. 
+        Execution Feedback: Detection result: 1 bowl has been detected. bowl1 bounding box is [1,2,3,4].
+    Step 3: get the answer to the basic question 'What is the bowl made of?' and return it as the final answer.
+        Execution Feedback: Done   
+
+E.g.,
+    When the question is 'What do these people on the bikes normally write?'
+    Step 1: get the answer to the basic question 'What are these people on bikes'.
+        Execution Feedback: The caption is: these people are poem writers.
+    Step 2: obtain external knowledge from a LLM to answers difficult text questions "What do these people on the bikes normally write?" given the context 'these people are poem writers.' 
+        Execution Feedback: poem
+    Step 3: get the answer to the basic question 'What do poem writers on the bikes normally write?'
+        Execution Feedback: poem  
+    Step 4: Return the final answer.
+        Execution Feedback: Done  
+
+E.g.,
+    When the question is 'What sport might this animal be involved in?'
+    Step 1: Generate a caption for image as general context.
+        Execution Feedback: The caption is: There is a horse.
+    Step 2: find animal.
+        Execution Feedback: Detection result: 1 animal has been detected. animal1 bounding box is [1,2,3,4].
+    Step 3: specify the animal name.
+        Execution Feedback: the animal name is: a horse
+    Step 4: Obtain external knowledge from a LLM to answers difficult text questions "What sport might this animal be involved in?" given the context (the context is from specify the animal name) 'the animal name is: a horse', and return the response as the final answer.
+        Execution Feedback: Done  
+
+E.g.,
+    When the question is 'Does these animals eat meat?'
+    Step 1: find animal.
+        Execution Feedback: Detection result: 2 animals have been detected. animal1 bounding box is [1,2,3,4], animal2 bounding box is [2,5,6,4].
+    Step 2: specify the animals' name.
+        Execution Feedback: one animal name is: tiger; one animal name is: tiger
+    Step 3: obtain the answer to 'Does the animal eat meat?' from LLM based on the context (the context is from specify the animal name) 'one animal name is: tiger; one animal name is: tiger'. Return the answer as final answer
+        Execution Feedback: Done  
+    

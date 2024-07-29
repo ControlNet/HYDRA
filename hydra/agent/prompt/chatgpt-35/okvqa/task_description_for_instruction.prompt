@@ -1,0 +1,9 @@
+External knowledge-dependent image question answering question--This type of question is intended to return a textual answer to the given question. 
+You are required to get the answer for the question. In the begining, you do not have any image information, therefore, you need to gather visual information to address the question, utilizing the provided skills. The visual information would be provided in feedback (current state.)
+E.g., When the question is 'What toy is this?,' the final answer should be the name of toy. Please do not return 'yes' or 'no' in this case. 
+E.g., When the question is 'What is the bowl made of?', the final answer should be the name of the material of the bowl.
+Pay attention please!
+    - Avoid making assumptions about the object's attributes. Only utilize the provided skill to acquire visual information, rather than resorting to guesses. 
+    - Generally, you can generate a caption for image as general context in the first step. Then, based on the context and question to do furthur exploration and get more visual information. 
+    - To identify an object detected in an image or to get an answer to a simple question about it, utilize Skill 5. e.g., "Specify the name of this type of animals;" "get a caption answer about 'which city is this?'"; "generate a caption for image as context" 
+    - For questions that need external knowledge, start by answering a simple question about the image to establish context. Then, use a LLM to obtain more comprehensive answers based on this context.

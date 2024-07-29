@@ -1,0 +1,339 @@
+Provided Python Functions/Class:
+
+class ImagePatch:
+    '''
+    A Python class containing a crop of an image centered around a particular object, as well as relevant information.
+    Attributes
+    ----------
+    cropped_image : array_like
+        An array-like of the cropped image taken from the original image.
+    left, lower, right, upper : int
+        An int describing the position of the (left/lower/right/upper) border of the crop's bounding box in the original image.
+    
+    Methods
+    -------
+    find(object_list: list[str]) -> dict[str, list[ImagePatch]]
+        Returns a dictionary. Each pair includes a list of ImagePatch objects matching the object_name contained in the crop, if any are found. 
+    exists(object_name: str) -> bool
+        Returns True if the object specified by object_name is found in the image, and False otherwise.
+    verify_property(object_name: str, attribute: str) -> bool
+        Returns True if the object possesses the visual property, and False otherwise.
+    simple_query(question: str, qa_mode: bool = True) -> str
+        Gnerate caption of image or get the answer to a basic question asked about the image. If no question is provided, returns the answer to "What is this?".
+    best_text_match(option_list: List[str]) -> str
+        Returns the string that best matches the image.
+    crop(left: int, lower: int, right: int, upper: int, image_name: str) -> ImagePatch
+        Returns a new ImagePatch object containing a crop of the image at the given coordinates.
+    '''
+
+
+    def __init__(self, image, left: int = None, lower: int = None, right: int = None, upper: int = None):
+        '''
+        Initializes an ImagePatch object by cropping the image at the given coordinates and stores the coordinates as attributes. If no coordinates are provided, the image is left unmodified, and the coordinates are set to the dimensions of the image.
+        Parameters
+        -------
+        image : array_like
+            An array-like of the original image.
+        left, lower, right, upper : int
+            An int describing the position of the (left/lower/right/upper) border of the crop's bounding box in the original image.
+        '''
+
+        if left is None and right is None and upper is None and lower is None:
+            self.cropped_image = image
+            self.left = 0
+            self.lower = 0
+            self.right = image.shape[2]  # width
+            self.upper = image.shape[1]  # height
+        else:
+            self.cropped_image = image[:, lower:upper, left:right]
+            self.left = left
+            self.upper = upper
+            self.right = right
+            self.lower = lower
+
+        self.width = self.cropped_image.shape[2]
+        self.height = self.cropped_image.shape[1]
+
+        self.horizontal_center = (self.left + self.right) / 2
+        self.vertical_center = (self.lower + self.upper) / 2
+
+    def find(self, object_list: list[str]) -> dict[str, ImagePatch]:
+        '''
+        Returns a dictionary. Each pair includes a list of ImagePatch objects matching the object_name contained in the crop, if any are found.
+        Otherwise, returns an empty dict.
+        Parameters
+        ----------
+        object_list: list[str]
+            A list of the name of the object to be found
+
+        Returns
+        -------
+        dict
+            a list of ImagePatch objects matching object_name contained in the crop
+        Examples
+        --------
+        # find foo, and get the only one foo patch 
+        >>>     detected_patches = image_patch.find(["foo"])
+        >>>     foo_1_patch = detected_patches["foo"][0]
+        '''
+        return find(self.cropped_image, object_list: list[str])
+
+
+    def exists(self, object_name: str) -> bool:
+        '''
+        Returns True if the object specified by object_name is found in the image, and False otherwise.
+        Parameters
+        -------
+        object_name : str
+            A string describing the name of the object to be found in the image.
+
+        Examples
+        -------
+        Is there garply bars in the photo?
+        >>>     is_garply_bar = image_patch.exists("garply bar")
+        >>>     final_answer = bool_to_yesno(is_garply_bar)
+        '''
+        return len(self.find([object_name])) > 0
+
+    def verify_property(self, object_name: str, attribute: str) -> bool:
+        '''
+        Returns True if the object possesses the visual property, and False otherwise.
+        Differs from 'exists' in that it presupposes the existence of the object specified by object_name, instead checking whether the object possesses the property.
+        Parameters
+        -------
+        object_name : str
+            A string describing the name of the object to be found in the image.
+        attribute : str
+            A string describing the simple visual property (e.g., color, shape, material) to be checked.
+
+        Examples
+        -------
+        # Do the letters have blue color? (assumes only one letter in image)
+        >>>     final_answer = bool_to_yesno(letters_patches[0].verify_property("letters", "blue"))
+        '''
+        return verify_property(self.cropped_image, object_name, attribute)
+
+    def simple_query(self, question: str = 'What is this?', qa_mode: bool = True) -> str:
+        '''
+        If qa_mode == False, return the caption of image.
+        If qa_mode == True, returns the answer to a basic question asked about the image. If no question is provided, returns the answer to "What is this?". The questions are about basic perception, and are not meant to be used for complex reasoning or external knowledge.
+        Parameters
+        -------
+        question : str
+            A string describing the question to be asked.
+        qa_mode : bool
+            A bool describing the type of output.
+            If True, returns the answer to a basic question.
+            If False, return the caption of image.
+            
+        Examples
+        -------
+        # What sort of vehicle uses this iterm?
+                # get general caption as context
+        >>>     general_caption = image_patch.simple_query(qa_mode=False)
+        >>>     # We assume general_caption is 'There is a fire hydrant'
+        >>>     final_answer = image_patch.llm_query(question='What sort of vehicle uses this item?', context='There is a fire hydrant.', long_answer=False)
+
+        # What is the name of the animal?
+        >>>     animal_patches = image_patch.find(['animal'])['animal'] 
+                # assume only one animal has been detected
+        >>>     animal_patch = animal_patches[0]
+                # get answer of simple question 'What is the name of the animal?'
+        >>>     animal_name = animal_patch.simple_query('What is the name of the animal?')
+        >>>     final_answer = animal_name
+        '''
+        return simple_query(self.cropped_image, question, qa_mode)
+
+    def best_text_match(self, option_list: List[str]) -> str:
+        '''
+        Returns the string that best matches the image.
+        Parameters
+        -------
+        option_list : str
+            A list with the names of the different options
+
+        Examples
+        -------
+        # Is the foo gold or white? (Assumes only one foo patch)
+        >>>     foo_patches = image_patch.find(["foo"])["foo"]
+        >>>     final_answer = foo_patches[0].best_text_match(["gold", "white"])
+        '''
+        return best_text_match(self.cropped_image, option_list)
+
+    def crop(self, left: int, lower: int, right: int, upper: int, image_name: str) -> ImagePatch:
+        '''
+        Returns a new ImagePatch cropped from the current ImagePatch.
+        Parameters
+        -------
+        left, lower, right, upper : int
+            The (left/lower/right/upper)most pixel of the cropped image.
+        image_name : str
+            A string describing the name of the cropped image.
+        -------
+        return ImagePatch(self.cropped_image, left, lower, right, upper, image_name)
+        '''
+
+
+def distance(patch_a: ImagePatch, patch_b: ImagePatch) -> float:
+
+    '''Returns the distance between the edges of two ImagePatches. If the patches overlap, it returns a negative distance corresponding to the negative intersection over union.
+
+    Examples
+    --------
+    #Return the qux that is closest to the foo, only one foo exist.
+    >>>     qux_patches = image_patch.find(['qux'])['qux']
+    >>>     foo_patch = image_patch.find(['foo'])['foo'][0]
+    >>>     qux_patches.sort(key=lambda x: distance(x, foo_patch))
+    >>>     final_answer = qux_patches[0]
+    '''
+    return distance(patch_a, patch_b)
+
+def bool_to_yesno(bool_answer: bool) -> str:
+    '''Returns a yes/no answer to a question based on the boolean value of bool_answer.
+    Parameters
+    ----------
+    bool_answer : bool
+        a boolean value
+    Returns
+    -------
+    str
+        a yes/no answer to a question based on the boolean value of bool_answer
+    '''
+    return "yes" if bool_answer else "no"
+
+def get_sorted_patches_left_to_right(list_patches: list[ImagePatch]) -> list[ImagePatch]:
+    ''' 
+    Return sorted list of patches according to their horizontal centers from left to right.
+    Parameters
+    --------
+    list_patches : List[ImagePatch]
+
+    Examples
+    --------
+    #Return the left qux.
+    >>>     qux_patches = image_patch.find(['qux'])['qux']
+    >>>     final_answer = get_sorted_patches_left_to_right(qux_patches)[0]
+    '''
+    return get_sorted_patches_left_to_right(list_patches)
+
+def get_sorted_patches_bottom_to_top(list_patches: list[ImagePatch]) -> list[ImagePatch]:
+    ''' 
+    Return sorted list of patches according to their vertical centers from bottom/low/below to top/up/above.
+    Parameters
+    --------
+    list_patches : List[ImagePatch]
+
+    Examples
+    --------
+    #Return the top qux.
+    >>>     qux_patches = image_patch.find(['qux'])['qux']
+    >>>     final_answer = get_sorted_patches_bottom_to_top(qux_patches)[-1]
+    '''
+    return get_sorted_patches_bottom_to_top(list_patches)
+
+def get_sorted_patches_front_to_back(list_patches: list[ImagePatch]) -> list[ImagePatch]:
+    ''' 
+    Return sorted list of patches according to how far from camera they are. Sorts patches from front/close to back/far.
+    Parameters
+    --------
+    list_patches : List[ImagePatch]
+
+    Examples
+    --------
+    #Return the front qux.
+    >>>     qux_patches = image_patch.find(['qux'])['qux']
+    >>>     final_answer = get_sorted_patches_front_to_back(qux_patches)[0]
+    '''
+    return get_sorted_patches_front_to_back(list_patches)
+
+def get_middle_patch(list_patches: list[ImagePatch]) -> ImagePatch:
+    '''
+    Returns the middle patch from list of patches.
+    Parameters
+    --------
+    list_patches : List[ImagePatch]
+    
+    Examples
+    --------
+    #Return the middle qux.
+    >>>     final_answer = get_middle_patch(qux_patches)
+    '''
+    return middle_patch
+
+def get_patch_left_of(patch: ImagePatch) -> ImagePatch:
+    '''
+    Return the left part of the given object from the original image.
+    
+    Examples
+    --------
+    #check whether a cup exisit in the left of spoon. only one spoon in image.
+    >>>     spoon_patch = image_patch.find(['spoon'])['spoon'][0]
+    >>>     left_of_spoon = get_patch_left_of(spoon_patch)
+    >>>     final_answer = bool_to_yesno(left_of_spoon.exists("cup"))
+    '''
+    return get_patch_left_of(patch)
+
+def get_patch_right_of(patch: ImagePatch) -> ImagePatch:
+    '''
+    Return the right part of the given object from the original image.
+    '''
+    return get_patch_right_of(patch)
+
+def get_patch_above_of(patch: ImagePatch) -> ImagePatch:
+    '''
+    Return the image patch above/up/top the given object from the original image.
+    '''
+    return get_patch_above_of(patch)
+
+def get_patch_below_of(patch: ImagePatch) -> ImagePatch:
+    '''
+    Return the image patch under/lower/below the given object from the original image.
+    Examples
+    --------
+    #check whether a foo under the only one qux.
+    >>>     qux_patch = image_patch.find(['qux'])['qux'][0]
+    >>>     under_of_spoon = get_patch_below_of(qux_patch)
+    >>>     final_answer = bool_to_yesno(under_of_spoon.exists("foo"))
+    '''
+    return get_patch_below_of(patch)
+
+def get_patch_closest_to_anchor_object(list_patches: list[ImagePatch], anchor_patch: ImagePatch) -> list[ImagePatch]:
+    '''
+    Returns the patch closest to the anchor patch from a list of patches.
+    '''
+    #find the foo closet to the qux from all foos.
+    >>>     qux_patch = image_patch.find(['qux'])['qux'][0]
+    >>>     foo_patches = image_patch.find(['foo'])['foo']
+    >>>     final_answer = get_patch_closest_to_anchor_object(foo_patches,qux_patch)
+    return get_patch_closest_to_anchor_object(list_patches, anchor_patch)
+
+def get_patch_farthest_to_anchor_object(list_patches: list[ImagePatch], anchor_patch: ImagePatch) -> list[ImagePatch]:
+    '''
+    Returns the patch farthest to the anchor patch from a list of patches.
+    '''
+    return get_patch_farthest_to_anchor_object(list_patches, anchor_patch)
+    
+Please only return valid python code:
+If a Python variable is not found in the 'Executed Python Code' section, it means that variable does not exist, and you cannot use any variable that has not been defined in the 'Executed Python Code'.
+        
+[EXAMPLE_HERE]
+
+Now the demonstration has ended. An instance (image_patch = ImagePatch(image)) of the ImagePatch class is provided. 
+
+Please translate only the 'Current Instruction' into Python code. Please be awared the setting:
+    1. If the 'Current Instruction' mentions the final process, assign the result to the variable named {final_answer} for the concluding statement. 
+    2. If there is no mention of a final process in the current instruction, do not use varible {final_answer}.
+    3. If a Python variable is not found in the 'Executed Python Code' section, it means that variable does not exist, and you cannot use any variable that has not been defined in the 'Executed Python Code'.
+
+Here are the provided information to generate python code:
+About Query: [INSERT_QUERY_TYPE_HERE]
+
+Query: [INSERT_QUERY_HERE]
+
+Executed Python Code:
+image_patch = ImagePatch(image) [MORE_CODE_WAITING]
+
+Each variable details:[VARIABLE_AND_DETAILS]
+   
+Current Instruction: [INSERT_CURRENT_INSTRUCTION_HERE]
+Generated Python Code for Current Instruction here:

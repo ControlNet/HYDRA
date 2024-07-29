@@ -1,0 +1,51 @@
+E.g., 
+    When the question is 'What toy is this?'. Current Instruction is 'Generate a caption for image as general context, then find toy and get answer about 'What toy is this?' and return it as the final answer. Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        # generate caption as context
+        general_context = image_patch.simple_query(qa_mode=False)
+        toy_patches = image_patch.find(['toy'])['toy']
+        # only one toy has been detected
+        toy_patch = toy_patches[0]
+        # get answer for simple question 'What toy is this?'
+        toy_name = toy_patch.simple_query(question='What toy is this?')
+        final_answer = toy_name
+
+E.g., 
+    When the question is 'What is the bowl made of?'. Current Instruction is 'find bowl and get answer about 'What is the bowl made of? and return it as the final answer.'. Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        bowl_patches = image_patch.find(['bowl'])['bowl']
+        # Only one bowl has been detected
+        bowl_patch = bowl_patches[0]
+        # get answer for simple question 'What is the bowl made of?'
+        final_answer = bowl_patch.simple_query(question='What is the bowl made of?')
+
+E.g., 
+    When the question is 'Why so many flowers?'. Current Instruction is 'generate a caption for image as general context, obtain the answer to 'Why so many flowers?' based on the context from the LLM and return the response as the final answer.' Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        # generate a caption
+        context = flower_patch.simple_query(qa_mode=False)
+        final_answer = flower_patch.llm_query(question = "Why so many flowers?", context = context, long_answer=False)
+
+E.g., 
+    When the question is 'What sport will use this object?'. Current Instruction is "generate a caption for image as general context, then obtain the answer to 'What sport will use this object?' based on the context from the LLM and return the response as the final answer.". Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        # generate a caption
+        context = image_patch.simple_query(qa_mode=False)
+        final_answer = flower_patch.llm_query(question = "What sport will use this object?", context = context, long_answer=False)
+
+E.g., 
+    When the question is 'Does these animals eat meat?'. Current Instruction is "generate a caption for image as general context, then final animal, then Specify the name of the animal, then obtain the answer to 'Does the animal eat meat?' based on the context from the LLM as the final answer". Executed Python Code: image_patch = ImagePatch(image)
+    Answer:
+        # generate a caption
+        context = image_patch.simple_query(qa_mode=False)
+        # find animal
+        animal_patches = image_patch.find(['animal'])['animal']
+        # only two animals have been detected
+        animal_1 = animal_patches[0]
+        animal_2 = animal_patches[1]
+        # Specify the name of the animals
+        animal_name1 = animal_1.simple_query(question='What is the name of the animal?')
+        animal_name2 = animal_2.simple_query(question='What is the name of the animal?')
+        animal_name_context = f'animal_1 name is:{animal_name1}, animal_2 name is: {animal_name2}'
+        # obtain the answer to 'Does the animal eat meat?' based on the context from the LLM as final answer
+        final_answer = animal_patch.llm_query(question = "Does the animal eat meat?", context = animal_name_context, long_answer=False)

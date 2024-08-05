@@ -13,7 +13,7 @@ from word2number import w2n
 import tensorneko_util as N
 
 from .toolbox import forward
-from ..agent.openai_client import chatgpt
+from ..agent.llm import chatgpt
 from ..agent.smb import StateMemoryBank
 from ..util.misc import get_hydra_root_folder, load_json
 from ..util.config import Config
@@ -336,11 +336,11 @@ class ImagePatch:
             A string describing the question to be asked.
         """
         if qa_mode:
-            query_answer = self.forward('blip', self.cropped_image, question, task='qa')
+            query_answer = self.forward(Config.base_config["vlm_model"], self.cropped_image, question, task='qa')
             # get global description.
             self.state_memory_bank.get_answer_of_simple_question_add_feedback(self.image_name, question, query_answer)
         else:
-            query_answer = self.forward('blip', self.cropped_image, question, task='caption')
+            query_answer = self.forward(Config.base_config["vlm_caption_model"], self.cropped_image, question, task='caption')
             # get global description.
             self.state_memory_bank.get_caption_add_feedback(self.image_name, query_answer)
 

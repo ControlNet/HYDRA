@@ -1,23 +1,24 @@
-fastapi == 0.110.*
-uvicorn == 0.28.*
-starlette == 0.36.*
-websockets == 12.*
+torch
+fastapi
+uvicorn
+starlette
+openai
+websockets == 11.*
 tensorneko_util == 0.3.15
 requests == 2.31.*
 pillow == 10.*
 word2number==1.*
 python_dateutil==2.8.*
-openai==1.13.*
 timm==0.9.16
-transformers==4.38.*
+transformers==4.43.*
+tokenizers==0.19.*
 chardet==5.2.*
 python-dotenv==1.0.*
 opencv-python==4.9.*
 accelerate==0.27.*
 bitsandbytes==0.38.1
 nltk==3.8.1
-inflect==6.0.2
-pydantic==1.*
+pydantic==2.*
 yacs==0.1.8
 pycocotools==2.0.6
 prettytable==3.4.1
@@ -25,3 +26,5 @@ ftfy==6.1.1
 torchmetrics==1.4.0.post0
 scipy==1.10.1
 gdown==5.2.0
+rich==13.7.1
+ollama==0.3.*

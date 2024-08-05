@@ -5,7 +5,6 @@ import re
 import numpy as np
 from typing import List, Union
 import nltk
-import inflect
 from transformers import AutoTokenizer
 from torchvision import transforms as T
 import pdb
@@ -21,7 +20,6 @@ from maskrcnn_benchmark.standalone.masker import Masker
 from maskrcnn_benchmark.standalone.serialization import load_state_dict
 from maskrcnn_benchmark.standalone import cv2_util
 
-engine = inflect.engine()
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 

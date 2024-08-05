@@ -1,6 +1,6 @@
 from ._base import module_registry
 from .xvlm import XVLMModel
-from .blip import BLIPModel
+from .blip import BLIP2Model
 from .depth import DepthEstimationModel
 from .efficient_sam import EfficientSam
 from .clip import CLIPModel

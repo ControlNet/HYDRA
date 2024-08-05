@@ -2,14 +2,13 @@ import tensorneko_util as N
 import websockets
 from websockets import WebSocketClientProtocol
 
-from hydra.agent.reasoner import Reasoner
-from hydra.agent.smb import StateMemoryBank
-
+from .reasoner import Reasoner
+from .smb import StateMemoryBank
 from .controller import ControllerLLM
 from .planner import Planner
 from .summarizer import Summarizer
 from ..util.console import logger
-from ..util.misc import get_root_folder
+from ..util.misc import get_hydra_root_folder
 from ..util.config import Config
 
 
@@ -32,7 +31,7 @@ class HydraNoRL(Hydra):
         reasoner_max_retry = Config.base_config["reasoner_max_retry"]
 
         # load prompts
-        prompt_path = get_root_folder() / "hydra" / "agent" / "prompt" / prompt_type
+        prompt_path = get_hydra_root_folder() / "agent" / "prompt" / prompt_type
         if not prompt_path.exists():
             raise NotImplementedError(f"Prompt for {prompt_type} on {dataset} is not implemented in {prompt_path}.")
 

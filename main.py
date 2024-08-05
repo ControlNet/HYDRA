@@ -16,29 +16,19 @@ parser.add_argument("--model_config", type=str, required=True)
 parser.add_argument("--result_folder", type=str, default="./result")
 args = parser.parse_args()
 
-from hydra.util.config import Config
+from hydra_vl4ai.util.config import Config
 Config.base_config_path = args.base_config
 Config.model_config_path = args.model_config
 
-from hydra.agent.hydra import HydraNoRL
-from hydra.util.console import logger, console
+from hydra_vl4ai.agent.hydra import HydraNoRL
+from hydra_vl4ai.util.console import logger, console
+from hydra_vl4ai.util.misc import wait_until_loaded
 import exp_datasets
-
-
-def wait_until_loaded():
-    while True:
-        try:
-            response = requests.get(f"http://localhost:{Config.base_config['executor_port']}/is_loaded")
-            if response.json()["result"]:
-                return
-        except requests.exceptions.ConnectionError:
-            pass
-        time.sleep(0.1)
 
 
 async def main():
     with console.status("[bold green]Connect to HYDRA executor...") as status:
-        wait_until_loaded()
+        wait_until_loaded(f"http://localhost:{Config.base_config['executor_port']}")
     hydra = HydraNoRL()
 
     match Config.base_config["dataset"]:

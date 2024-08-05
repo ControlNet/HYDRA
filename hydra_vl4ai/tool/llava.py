@@ -11,7 +11,7 @@ from ._base import BaseModel, module_registry
 from ..util.misc import get_root_folder
 
 
-@module_registry.register("llava")
+@module_registry.register("llava1.5")
 class LLaVA(BaseModel):
 
     def __init__(self, gpu_number=0, model_name: str = "liuhaotian/llava-v1.5-7b"):

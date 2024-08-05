@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 import json
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import argparse
 import traceback
+from dotenv import load_dotenv
+load_dotenv()
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -10,16 +12,16 @@ parser.add_argument("--base_config", type=str, required=True)
 parser.add_argument("--model_config", type=str, required=True)
 args = parser.parse_args()
 
-from hydra.util.config import Config
+from .util.config import Config
 Config.base_config_path = args.base_config
 Config.model_config_path = args.model_config
 
-from hydra.execution.image_patch import *
-from hydra.execution.image_patch import ImagePatch
-from hydra.agent.smb.state_memory_bank import StateMemoryBank
-from hydra.execution.toolbox import Toolbox
-from hydra.util.message import ExecutionRequest, ExecutionResult
-from hydra.util.misc import get_description_from_executed_variable_list, get_statement_variable, load_image_from_bytes
+from .execution.image_patch import *
+from .execution.image_patch import ImagePatch
+from .agent.smb.state_memory_bank import StateMemoryBank
+from .execution.toolbox import Toolbox
+from .util.message import ExecutionRequest, ExecutionResult
+from .util.misc import get_description_from_executed_variable_list, get_statement_variable, load_image_from_bytes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,14 +42,16 @@ async def execute(websocket: WebSocket):
     temp_state_memory_bank = StateMemoryBank()
     while True:
         temp_state_memory_bank.reset()
-        execution_request = ExecutionRequest.from_dict(await websocket.receive_json())
+        try:
+            execution_request = ExecutionRequest.from_dict(await websocket.receive_json())
+        except WebSocketDisconnect:
+            break
         if execution_request.send_image:
             image_buffer = await websocket.receive_bytes()
             image_patch = ImagePatch(load_image_from_bytes(image_buffer), state_memory_bank=temp_state_memory_bank)
         try:
             # run in new thread
             await asyncio.to_thread(exec, execution_request.code, globals(), locals())
-            # exec(execution_request.code, globals(), locals())
         except Exception as e:
             # print traceback
             traceback.print_exc()

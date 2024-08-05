@@ -1,4 +1,6 @@
 from typing import Union
+
+from ..util.config import Config
 from ._base import BaseModel, module_registry
 import torch
 from ..util.misc import get_root_folder
@@ -28,8 +30,7 @@ class GLIPModel(BaseModel):
         class OurGLIPDemo(GLIPDemo):
 
             def __init__(self, dev, *args_demo):
-                config = N.read.yaml(str(get_root_folder() / "config" / "base_config.yaml"))
-                detect_thresholds_glip = config['detect_thresholds']['glip']
+                detect_thresholds_glip = Config.base_config["glip_threshold"]
 
                 kwargs = {
                     'min_image_size': 800,

@@ -1,13 +1,13 @@
 import torch
 import re
 
-from hydra.util.misc import get_root_folder
 from huggingface_hub import snapshot_download
 
 from ._base import BaseModel, module_registry
+from ..util.misc import get_root_folder
 
-@module_registry.register("blip")
-class BLIPModel(BaseModel):
+@module_registry.register("blip2")
+class BLIP2Model(BaseModel):
     to_batch = True
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass

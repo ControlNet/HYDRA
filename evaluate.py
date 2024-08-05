@@ -1,7 +1,7 @@
 import sys
 from evaluation.vqa_eval import GQAeval
 from evaluation.grounding_eval import batch_iou_2d
-from hydra.util.console import console, logger
+from hydra_vl4ai.util.console import console, logger
 import tensorneko_util as N
 import argparse
 

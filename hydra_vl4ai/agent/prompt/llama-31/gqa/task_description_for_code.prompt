@@ -1,0 +1,4 @@
+Compositional image question answering question--This type of question is intended to return a textual answer to the given question. 
+If Current Instruction includes returning answer, please use {final_answer} as the varible name when providing Python code. Make sure {final_answer} is string type.
+E.g., For the question 'What sport can you use this for?', please provide the name of the sport as your answer in the final step.
+E.g., For the question 'Is it good weather?', the final answer must be either 'yes' or 'no'.

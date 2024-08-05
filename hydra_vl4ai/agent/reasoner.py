@@ -6,7 +6,7 @@ from PIL import Image
 from ..util.config import Config
 from ..util.console import logger
 from ..util.message import ExecutionRequest, ExecutionResult
-from .openai_client import chatgpt
+from .llm import llm
 from .smb.state_memory_bank import StateMemoryBank
 
 
@@ -47,7 +47,7 @@ class Reasoner:
         })
 
         for _ in range(self.num_trials):
-            code = await chatgpt(prompt)
+            code = await llm(Config.base_config["llm_code_model"], prompt)
             if code is None:
                 continue
             

@@ -383,3 +383,8 @@ output*
 *.jit
 result/
 !media/*
+.ipynb_checkpoints
+planner.txt
+reasoner.txt
+summarizer.txt
+*.ipynb

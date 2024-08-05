@@ -4,7 +4,7 @@ import numpy as np
 
 from ..util.config import Config
 from .smb.state_memory_bank import StateMemoryBank
-from .openai_client import chatgpt
+from .llm import llm
 from ..util.console import logger
 
 
@@ -31,11 +31,11 @@ class Planner:
         instructions = []
         probs = []
         for _ in range(self.num_trials):
-            response = await chatgpt(prompt) or ""
+            response = await llm(Config.base_config["llm_model"], prompt) or ""
+            logger.debug(f"Response from Planner: {response}")
             response = response.replace("```json", "").replace("```", "")
             # find the first "[" and the last "]" to get the json string
             response = response[response.find("["):response.rfind("]") + 1]
-            logger.debug(f"Response from Planner: {response}")
             instructions_match, probs_match = self.convert_chatgpt_output_to_pair(response)
             if len(instructions_match) != len(probs_match):
                 continue

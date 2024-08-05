@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch
 import re
 
-from ..util.misc import get_root_folder
+from ..util.misc import get_root_folder, get_hydra_root_folder
 from ..util.console import logger
 from ._base import BaseModel, module_registry
 
@@ -59,7 +59,7 @@ class XVLMModel(BaseModel):
             normalize,
         ])
 
-        with open(get_root_folder() / 'hydra/assets/random_negatives.txt') as f:
+        with open(get_hydra_root_folder() / 'assets/random_negatives.txt') as f:
             self.negative_categories = [x.strip() for x in f.read().split()]
 
     @staticmethod

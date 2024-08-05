@@ -1,22 +1,27 @@
 dataset: okvqa
 task: vqa
 prompt: chatgpt-35/okvqa
-llm_model: "gpt-3.5-turbo-1106"  # "gpt-3.5-turbo-0630"s
+llm_model: "gpt-3.5-turbo-1106"  # "gpt-3.5-turbo-0630"
+llm_code_model: "gpt-3.5-turbo-1106"  # "gpt-3.5-turbo-0630"
 embedding_model: "text-embedding-3-small"
 
 debug: True
 executor_port: 31888
-openai_max_retry: 3
+llm_max_retry: 3
 planner_max_retry: 5
 reasoner_max_retry: 5
 num_actions: 5
 max_iterations: 7
-openai_max_concurrency: 1000
+llm_max_concurrency: 1000
 max_concurrent_tasks: 20
 ratio_box_area_to_image_area: 0.0
 crop_larger_margin: True
 
+vlm_model: "blip2"
+vlm_caption_model: "blip2"
+
 grounding_model: grounding_dino
+glip_threshold: 0.5
 grounding_dino_threshold: 0.4
 
 verify_property_model: xvlm

@@ -1,0 +1,45 @@
+E.g., 
+    When the question is 'Does the tool on top of the table look clean and black?'. Current Instruction is 'Verify if the tool is clean and verify if the tool is black and get the final answer'. Executed Python Code: image_patch = ImagePatch(image)\n# find tool\ntool_patches = image_patch.find(['tool'])['tool']
+    Output:
+        # only one fool has been detected, get tool patch
+        tool_patch = tool_patches[0]
+        # Verify if the tool is clean 
+        tool_is_clean = tool_patch.verify_property(object_name='utensil', attribute='clean')
+        # verify if the tool is black
+        tool_is_black = tool_patch.verify_property(object_name='utensil', attribute='black')
+        # get final answer
+        final_answer = bool_to_yesno((tool_is_clean and tool_is_black))
+
+E.g., 
+    When the question is 'Does the hat on top of the table look red?'. Current Instruction is 'find the hat on top of the table. Executed Python Code: image_patch = ImagePatch(image)
+    Output:
+        # find table
+        table_patches = image_patch.find(['table'])['table']
+        # only one table has been detected, get table patch
+        table_patch = table_patches[0]
+        # get image patch above the table_patch
+        on_top_of_table_patch = get_patch_above_of(table_patch)
+        # find hat on top of the table
+        hat_on_top_table_patches = on_top_of_table_patch.find(['hat'])['hat']
+
+E.g., 
+    When the question is 'How big is the toy?'. Current Instruction is 'Get the answer to a basic question 'The toy is big or small in this image?' asked about the image. Return the answer as final answer.'. Executed Python Code: image_patch = ImagePatch(image)
+    Output:
+        # Get the answer to a basic question 'The toy is big or small in this image?' asked about the image. Return the answer as final answer.
+        final_answer = image_patch.simple_query('The toy is big or small in this image?')
+
+E.g., 
+    When the question is 'What kind of device is this?'. Current Instruction is 'specify the device name'. Executed Python Code: image_patch = ImagePatch(image)\ndevice_patches = image_patch.find(['device'])['device']\ndevice_patch = device_patches[0]
+    Output:
+        # specify the device name
+        device_name = device_patch.simple_query('What kind of device is this?')
+
+E.g., 
+    When the question is 'Are there bagels or lemons?'. Current Instruction is 'Check for lemon existence and check for bagels existence. Get final answer based on lemon existence and bagel existence'. Executed Python Code: image_patch = ImagePatch(image)
+    Output: 
+        # Check for lemon existence 
+        has_lemon = image_patch.exists("lemon")
+        check for bagels existence
+        has_begel = image_patch.exists("bagels")
+        # get final answer, either has_lemon or has_begel is true return 'yes'
+        final_answer =  bool_to_yesno(has_lemon or has_begel)

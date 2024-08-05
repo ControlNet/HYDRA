@@ -1,0 +1,93 @@
+Please answer the following questions using the given guesses in list.
+If a unique answer cannot be determined, choose only one of the possible answers.
+About Question: [INSERT_QUERY_TYPE_HERE]
+Aim to reply in ONE word (at MOST 2).
+
+Question: What kind of flowers are these?
+Guess list: ['these flowers are purple, so lavender, lilac, iris, and hyacinth', 'purple flowers']
+Answer: lilac
+
+Question: What do these people on the bikes normally write and give out?
+Guess list:['the people on bikes are police, so Tickets', 'tickets']
+Answer: tickets
+
+Question: What kind of cold meet is this?
+Guess list: ['what kind of meat is this is beef, so roast beef', 'beef']
+Answer: beef
+
+Question: Can you guess the place shown in this picture?
+Guess list: ['the place is tourist attraction, so the Eiffel Tower in Paris, France', 'big ben']
+Answer: big ben
+
+Question: When was this type of vehicle with two equal sized wheels invented?
+Guess list: ['the vehicle is a bicycle, so 19th century', '1819']
+Answer: 1800s
+
+Question: What is the flavor of the pink topping on this dessert?
+Guess list: ['the topping is whipped cream, so strawberry, vanilla, chocolate, and raspberry', 'strawberry']
+Answer: strawberry
+
+Question: How are these festive lights held in place?
+Guess list: ['these festive lights are christmas lights, so with hooks clips', 'string']
+Answer: string
+
+Question: Who is famous for allegedly doing this in a lightning storm?
+Guess list: ['what is being done is flying a kite, so Benjamin Franklin', 'Charles Manson']
+Answer: Benjamin Franklin
+
+Question: What is the object atop the skier's head used for?
+Guess list: ['the object atop the skier's head is helmet, so protection from head injuries', 'sunglasses']
+Answer: protection
+
+Question: What rank is the man on the right?
+Guess list: ['who is the man on the right is sailor, so seaman', 'captain']
+Answer: captain
+
+Question: Chemically what kind of water is in the picture?
+Guess list: ['the water in the picture is waves, so salt water', 'salt water']
+Answer: salt
+
+Question: Is the material tweed or canvas?
+Guess list: ['the material is fabric, so fabric', 'canvas']
+Answer: canvas
+
+Question: Which type of meat are in the photo?
+Guess list: ['the meat in the photo is sausage, so pork', 'hot dogs']
+Answer: hotdogs
+
+Question: What sort of predator might there be in an area like this?
+Guess list: ['this area is mountains, so predators like wolves fox', 'shark']
+Answer: shark
+
+Question: Can you name a sport this person could be a part of?
+Guess list: ['this person is a racer, so racing such as auto', 'motorcycle racing']
+Answer: racing
+
+Question: Who makes the yellow top worn in this photograph?
+Guess list: ['the top is red, so brand is unknown', 'Burton']
+Answer: Burton
+
+Question: Is the athlete right or left handed?
+Guess list: ['what is the athlete doing is playing baseball, so unclear', 'right handed']
+Answer: right handed
+
+Question: Is this food high or low on fat?
+Guess list: ['what kind of food is this is sandwich, so depends on ingredients', 'high']
+Answer: high
+
+
+Question: Which objects shown are typically associated with small children?
+Guess list: ['what objects are shown are stuffed animals, so toys', 'teddy bears']
+Answer: teddy bears
+
+Question: What small appliance is that stuffed animal inside?
+Guess list: ['the stuffed animal is a teddy bear, so vacuum cleaner', 'microwave']
+Answer: microwave
+
+Question: What is this made with?
+Guess list: ['what is this is muffin, so flour sugar eggs', 'oats']
+Answer: flour
+
+Question: [INSERT_QUERY_HERE]
+Guess list: [INSERT_GUESS_HERE]
+Answer (Aim to reply in ONE word (at MOST 2)):

@@ -1,5 +1,5 @@
 from .smb.state_memory_bank import StateMemoryBank
-from .openai_client import chatgpt
+from .llm import llm
 from ..util.config import Config
 
 
@@ -19,12 +19,12 @@ class Summarizer:
         if Config.base_config["debug"]:
             with open("summarizer.txt", "w") as f:
                 f.write(prompt)
-        response = await chatgpt(prompt) or ""
+        response = await llm(Config.base_config["llm_model"], prompt) or ""
         return response
 
     async def final_guess(self, query: str, guesses: list[str]) -> str:
         prompt = self.build_guess_prompt(query, guesses)
-        response = await chatgpt(prompt) or ""
+        response = await llm(Config.base_config["llm_model"], prompt) or ""
         return response
 
     def build_summarizer_prompt(self, query: str, state_memory_bank: StateMemoryBank):

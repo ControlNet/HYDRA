@@ -5,12 +5,12 @@ parser.add_argument("--base_config", type=str, required=True)
 parser.add_argument("--model_config", type=str, required=True)
 args = parser.parse_args()
 
-from hydra.util.config import Config
+from .util.config import Config
 Config.base_config_path = args.base_config
 Config.model_config_path = args.model_config
 Config.base_config["debug"] = False
-from hydra.util.console import console
-from hydra.tool import module_registry
+from .util.console import console
+from .tool import module_registry
 
 
 def prepare_models():

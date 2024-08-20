@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you find this work useful in your research, please cite it."
+preferred-citation:
+  type: conference-paper
+  title: "HYDRA: A Hyper Agent for Dynamic Compositional Visual Reasoning"
+  authors:
+  - family-names: "Ke"
+    given-names: "Fucai"
+  - family-names: "Cai"
+    given-names: "Zhixi"
+  - family-names: "Jahangard"
+    given-names: "Simindokht"
+  - family-names: "Wang"
+    given-names: "Weiqing"
+  - family-names: "Haghighi"
+    given-names: "Pari Delir"
+  - family-names: "Rezatofighi"
+    given-names: "Hamid"
+  collection-title: "European Conference on Computer Vision"
+  year: 2024

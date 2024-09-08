@@ -101,12 +101,12 @@ TORCH_HOME=./pretrained_models
 Run the scripts to download the pretrained models to the `./pretrained_models` directory. 
 
 ```Bash
-python -m hydra_vl4ai.download_models --base_config <EXP-CONFIG-DIR> --model_config <MODEL-CONFIG-PATH>
+python -m hydra_vl4ai.download_model --base_config <EXP-CONFIG-DIR> --model_config <MODEL-CONFIG-PATH>
 ```
 
 For example,
 ```Bash
-python -m hydra_vl4ai.download_models --base_config ./config/okvqa.yaml --model_config ./configs/model_config_1gpu.yaml
+python -m hydra_vl4ai.download_model --base_config ./config/okvqa.yaml --model_config ./configs/model_config_1gpu.yaml
 ```
 
 ## Inference

@@ -106,7 +106,7 @@ python -m hydra_vl4ai.download_model --base_config <EXP-CONFIG-DIR> --model_conf
 
 For example,
 ```Bash
-python -m hydra_vl4ai.download_model --base_config ./config/okvqa.yaml --model_config ./configs/model_config_1gpu.yaml
+python -m hydra_vl4ai.download_model --base_config ./config/okvqa.yaml --model_config ./config/model_config_1gpu.yaml
 ```
 
 ## Inference

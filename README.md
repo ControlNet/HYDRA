@@ -126,7 +126,11 @@ python demo_cli.py \
 ```
 
 ### Inference with Gradio GUI
-TODO.
+```Bash
+python webui.py \
+  --base_config <YOUR-CONFIG-DIR> \
+  --model_config <MODEL-PATH>
+```
 
 ### Inference dataset
 

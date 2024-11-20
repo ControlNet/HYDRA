@@ -388,3 +388,4 @@ planner.txt
 reasoner.txt
 summarizer.txt
 *.ipynb
+.gradio

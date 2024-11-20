@@ -389,3 +389,5 @@ reasoner.txt
 summarizer.txt
 *.ipynb
 .gradio
+.pixi
+pixi.lock

@@ -1,0 +1,68 @@
+[project]
+authors = ["ControlNet <smczx@hotmail.com>"]
+channels = ["pytorch", "nvidia/label/cuda-11.8.0", "anaconda", "conda-forge"]
+description = "Official implementation for HYDRA."
+name = "hydra_vl4ai"
+platforms = ["linux-64"]
+version = "0.0.0"
+channel-priority = "disabled"
+
+[tasks]
+install_glip = { cmd = "python setup.py clean --all build develop --user", cwd = "module_repos/GLIP", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
+install_sam = { cmd = "uv pip install -e .", cwd = "module_repos/Grounded-Segment-Anything/segment_anything", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
+install_groundingdino = { cmd = "python setup.py clean --all build develop --user", cwd = "module_repos/Grounded-Segment-Anything/GroundingDINO", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
+install_llava = { cmd = "uv pip install -e .", cwd = "module_repos/LLaVA", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
+install = { cmd = "uv pip install -e . && echo Depedencies installation finished!", depends-on = ["install_glip", "install_sam", "install_groundingdino", "install_llava"], env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
+executor = "python -m hydra_vl4ai.executor --base_config config/gqa.yaml --model_config config/model_config_1gpu.yaml"
+download_model = "python -m hydra_vl4ai.download_model --base_config config/gqa.yaml --model_config config/model_config_1gpu.yaml"
+
+[build-dependencies]
+setuptools = "*"
+cmake = "*"
+ninja = "*"
+
+[dependencies]
+python = { version = "3.11.*", channel = "anaconda" }
+pytorch = { version = "==2.1.2", channel = "pytorch" }
+torchvision = { version = "==0.16.2", channel = "pytorch" }
+torchaudio = { version = "==2.1.2", channel = "pytorch" }
+pytorch-cuda = { version = "11.8.*", channel = "pytorch" }
+cuda = { version = "11.8.0", channel = "nvidia/label/cuda-11.8.0" }
+cuda-libraries-dev = { version = "11.8.0", channel = "nvidia/label/cuda-11.8.0" }
+cuda-version = "11.8"
+numpy = "<2.0"
+ipywidgets = ">=8.1.5,<9"
+ipykernel = ">=6.29.5,<7"
+
+[pypi-dependencies]
+fastapi = "*"
+uvicorn = "*"
+starlette = "*"
+openai = "*"
+websockets = "~=11.0"
+tensorneko_util = "==0.3.20"
+tensorneko = "==0.3.20"
+requests = "~=2.0"
+pillow = "~=10.0"
+word2number = "~=1.0"
+python_dateutil = "~=2.8.0"
+timm = "==0.9.16"
+transformers = "~=4.43.0"
+tokenizers = "~=0.19.0"
+chardet = "~=5.2.0"
+python-dotenv = "~=1.0.0"
+opencv-python = "~=4.9.0"
+accelerate = "~=0.27.0"
+bitsandbytes = "==0.38.1"
+nltk = "==3.8.1"
+pydantic = "~=2.0"
+yacs = "==0.1.8"
+pycocotools = "==2.0.6"
+prettytable = "==3.4.1"
+ftfy = "==6.1.1"
+torchmetrics = "==1.4.0.post0"
+scipy = "==1.14.1"
+gdown = "==5.2.0"
+rich = "==13.7.1"
+ollama = "~=0.3.0"
+protobuf = "~=3.19.0"

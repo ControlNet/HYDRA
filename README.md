@@ -48,8 +48,8 @@ We realize that `gpt-3.5-turbo-0613` is deprecated, and `gpt-3.5` will be replac
 We also notice the embedding model is updated by OpenAI as shown in this [link](https://openai.com/index/new-embedding-models-and-api-updates/). Due to the uncertainty of the embedding model updates from OpenAI, we suggest you train a new version of the RL controller yourself and update the RL models.
 - [x] GPT-4o-mini replacement.
 - [x] LLaMA3.1 (ollama) replacement.
-- [ ] Gradio Demo
-- [ ] GPT-4o Version.
+- [x] Gradio Demo
+- [x] GPT-4o Version.
 - [ ] HYDRA with RL
 
 
@@ -69,22 +69,17 @@ git clone https://github.com/ControlNet/HYDRA
 
 ### 2. Setup conda environment and install dependencies. 
 
-From source:
+Option 1: Using [pixi](https://prefix.dev/) (recommended):
+```Bash
+pixi run install
+pixi shell
+```
+
+Option 2: Building from source:
 ```Bash
 bash -i build_env.sh
 ```
-
 If you meet errors, please consider going through the `build_env.sh` file and install the packages manually.
-
-From PyPI:
-```Bash
-# run after you have installed the conda environment, pytorch and cuda
-pip install "hydra_vl4ai"
-AM_I_DOCKER=False BUILD_WITH_CUDA=True CUDA_HOME=$CONDA_PREFIX pip install --no-build-isolation "git+https://github.com/ControlNet/HYDRA.git#subdirectory=module_repos/GLIP"
-AM_I_DOCKER=False BUILD_WITH_CUDA=True CUDA_HOME=$CONDA_PREFIX pip install --no-build-isolation "git+https://github.com/ControlNet/HYDRA.git#subdirectory=module_repos/Grounded-Segment-Anything/GroundingDINO"
-AM_I_DOCKER=False BUILD_WITH_CUDA=True CUDA_HOME=$CONDA_PREFIX pip install --no-build-isolation "git+https://github.com/ControlNet/HYDRA.git#subdirectory=module_repos/Grounded-Segment-Anything/segment_anything"
-AM_I_DOCKER=False BUILD_WITH_CUDA=True CUDA_HOME=$CONDA_PREFIX pip install --no-build-isolation "git+https://github.com/ControlNet/HYDRA.git#subdirectory=module_repos/LLaVA"
-```
 
 ### 3. Configure the environments
 

@@ -4,8 +4,8 @@ uvicorn
 starlette
 openai
 websockets == 11.*
-tensorneko_util == 0.3.15
-requests == 2.31.*
+tensorneko_util == 0.3.20
+requests == 2.*
 pillow == 10.*
 word2number==1.*
 python_dateutil==2.8.*
@@ -24,7 +24,7 @@ pycocotools==2.0.6
 prettytable==3.4.1
 ftfy==6.1.1
 torchmetrics==1.4.0.post0
-scipy==1.10.1
+scipy==1.14.1
 gdown==5.2.0
 rich==13.7.1
 ollama==0.3.*

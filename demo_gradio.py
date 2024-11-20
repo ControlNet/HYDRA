@@ -15,7 +15,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--base_config", type=str, required=True)
 parser.add_argument("--model_config", type=str, required=True)
 parser.add_argument("--share", default=False, action="store_true")
-parser.add_argument("--result_folder", type=str, default="./result")
 args = parser.parse_args()
 
 from hydra_vl4ai.util.config import Config

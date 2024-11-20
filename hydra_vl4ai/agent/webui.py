@@ -24,7 +24,7 @@ class HydraNoRLWeb(HydraNoRL):
             self.query.submit(self._gradio_call, [self.image, self.query], [self.output, self.current_state])
 
     async def _gradio_call(self, image_path: str, query: str):
-        print(image_path)
+        logger.info(f"Image path: {image_path}")
 
         with open(image_path, "rb") as img_file:
             image_bytes = img_file.read()
@@ -39,13 +39,13 @@ class HydraNoRLWeb(HydraNoRL):
                 if chunk[0] == "start":
                     continue
                 elif chunk[0] == "panic":
-                    messages.append(gr.ChatMessage("assistant", "抱歉，我无法帮助您。"))
+                    messages.append(gr.ChatMessage("assistant", "Sorry, please check the logs for more information."))
                     yield messages, self._format_state_memory()
                     return
                 elif chunk[0] == "error":
                     continue
                 elif chunk[0] == "stage-completed":
-                    messages.append(gr.ChatMessage("assistant", "", metadata={"title": f"[Iter {chunk[2]}] {chunk[1]}"}))  # type: ignore
+                    messages.append(gr.ChatMessage("assistant", f"[Iter {chunk[2]}] {chunk[1]} ..."))  # type: ignore
                     yield messages, self._format_state_memory()
                 elif chunk[0] == "continue":
                     pass
@@ -56,16 +56,14 @@ class HydraNoRLWeb(HydraNoRL):
 
     def _format_state_memory(self):
         return "\n".join([
-            "## 反馈",
+            "## Feedbacks",
             self.bank.feedbacks_prompt,
-            "## 代码",
+            "## Codes",
             f"```python\n{self.bank.codes_prompt.lstrip() or 'Waiting for Response'}\n```",
-            "## 指令",
+            "## Instructions",
             self.bank.instructions_prompt,
-            "## 变量",
+            "## Variables",
             self.bank.variables_prompt,
-            "## 变量名",
-            f"```python\n{self.bank.variable_names}\n```"
         ])
 
     async def _call_vqa(

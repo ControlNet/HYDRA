@@ -34,7 +34,7 @@
     <a href="https://www.python.org/"><img src="https://img.shields.io/pypi/pyversions/hydra-vl4ai?style=flat-square"></a>
 </div>
 
-**This is the code for the paper [HYDRA: A Hyper Agent for Dynamic Compositional Visual Reasoning](https://arxiv.org/abs/2403.12884), accepted by ECCV 2024 \[[Project Page](https://hydra-vl4ai.github.io)\].**
+**This is the code for the paper [HYDRA: A Hyper Agent for Dynamic Compositional Visual Reasoning](https://link.springer.com/chapter/10.1007/978-3-031-72661-3_8), accepted by ECCV 2024 \[[Project Page](https://hydra-vl4ai.github.io)\].**
 
 ## Release
 
@@ -155,10 +155,13 @@ python evaluate.py result/result_okvqa.jsonl okvqa
 ```bibtex
 @inproceedings{ke2024hydra,
   title={HYDRA: A Hyper Agent for Dynamic Compositional Visual Reasoning},
-  author={Fucai Ke and Zhixi Cai and Simindokht Jahangard and Weiqing Wang and Pari Delir Haghighi and Hamid Rezatofighi},
+  author={Ke, Fucai and Cai, Zhixi and Jahangard, Simindokht and Wang, Weiqing and Haghighi, Pari Delir and Rezatofighi, Hamid},
   booktitle={European Conference on Computer Vision},
   year={2024},
-  organization={Springer}
+  organization={Springer},
+  doi={10.1007/978-3-031-72661-3_8},
+  isbn={978-3-031-72661-3},
+  pages={132--149},
 }
 ```
 

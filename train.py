@@ -15,10 +15,12 @@ parser.add_argument("--data_root", type=str, required=True)
 parser.add_argument("--base_config", type=str, required=True)
 parser.add_argument("--model_config", type=str, required=True)
 parser.add_argument("--result_folder", type=str, default="./result")
+parser.add_argument("--dqn_config", type=str, required=True)
 args = parser.parse_args()
 
 from hydra_vl4ai.util.config import Config
 Config.base_config_path = args.base_config
+Config.dqn_config_path = args.dqn_config
 Config.model_config_path = args.model_config
 
 from hydra_vl4ai.agent.hydra import HydraNoRL, HydraTrainingRL
@@ -58,48 +60,43 @@ async def main():
     # output path
     Path(args.result_folder).mkdir(parents=True, exist_ok=True)
     save_path = Path(args.result_folder) / f"result_{Config.base_config['dataset']}.jsonl"
-        
-    # resume if the file exists
-    completed = []
-    if os.path.exists(save_path):
-        prev_results = N.io.read.json(str(save_path))
-        completed = [result["datum_id"] for result in prev_results]
-        
-    for i, (image_path, datum_id, query, ground_truth) in enumerate(dataset):
-        if datum_id in completed:
-            logger.info(f"Skipping {i+1}/{len(dataset)}")
-            continue
-        logger.info(f"Processing {i+1}/{len(dataset)}")
-        with open(image_path, "rb") as f:
-            image_buffer = f.read()
-        result = await hydra(image_buffer, query, ground_truth)
-        logger.info(f"Query: {query} Answer: {result}")
 
-        with open(save_path, "a") as f:
-            f.write(json.dumps({
-                "datum_id": datum_id,
-                "query": query,
-                "ground_truth": ground_truth,
-                "result": result
-            }) + "\n")
-            f.flush()
+    cum_reward=0 # TODO:modify 
 
-        # training log info
-        if hydra.controller.obs_no % hydra.controller.train_log_interval == 0:
-            mean_reward = np.mean(hydra.controller.reward_window)
-            cum_reward = 0.99*cum_reward + 0.01*mean_reward
-            logger.info('---Current step:{}-----Mean Reward:{:.2f}----Cumulative Reward:{:.2f}'.format(hydra.controller.obs_no, mean_reward, cum_reward))
-        
-        if hydra.controller.save_model_obs_num > hydra.controller.save_interval \
-            and hydra.controller.best_cum_reward < cum_reward:
-
-            # update best cummulated reward
-            hydra.controller.best_cum_reward = cum_reward
-
-            # save model
-            hydra.controller.rl_agent_model.save_model(hydra.controller.model_save_path)
+    for epoch_idx_ in range(Config.dqn_config["training_epoch"]):       
+        for i, (image_path, datum_id, query, ground_truth) in enumerate(dataset):
             
-            hydra.controller.save_model_obs_num = 0
+            logger.info(f"Processing {i+1}/{len(dataset)}")
+            with open(image_path, "rb") as f:
+                image_buffer = f.read()
+            result = await hydra(image_buffer, query, ground_truth)
+            logger.info(f"Query: {query} Answer: {result}")
+
+            with open(save_path, "a") as f:
+                f.write(json.dumps({
+                    "datum_id": datum_id,
+                    "query": query,
+                    "ground_truth": ground_truth,
+                    "result": result
+                }) + "\n")
+                f.flush()
+
+            # training log info
+            if hydra.controller.obs_no % hydra.controller.train_log_interval == 0:
+                mean_reward = np.mean(hydra.controller.reward_window)
+                cum_reward = 0.99*cum_reward + 0.01*mean_reward
+                logger.info('---Current step:{}-----Mean Reward:{:.2f}----Cumulative Reward:{:.2f}'.format(hydra.controller.obs_no, mean_reward, cum_reward))
+            
+            if hydra.controller.save_model_obs_num > hydra.controller.save_interval \
+                and hydra.controller.best_cum_reward < cum_reward:
+
+                # update best cummulated reward
+                hydra.controller.best_cum_reward = cum_reward
+
+                # save model
+                hydra.controller.rl_agent_model.save_model(os.path.join(hydra.controller.model_save_path, Config.dqn_config["model_name"]))
+                
+                hydra.controller.save_model_obs_num = 0
 
 
 if __name__ == "__main__":

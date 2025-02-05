@@ -214,7 +214,7 @@ class HydraWithRL(Hydra):
             Config.base_config["planner_max_retry"])
 
         embedding_prompt_base = N.io.read.text(str(prompt_path / "embedding.prompt"))
-        self.controller = ControllerDQN(embedding_prompt_base, task_description_for_instruction)  # TODO:MODIFY
+        self.controller = ControllerDQN(embedding_prompt_base, task_description_for_instruction, instruction_examples)  # TODO:MODIFY
 
         self.reasoner = Reasoner(
             code_prompt_base,
@@ -261,7 +261,7 @@ class HydraWithRL(Hydra):
                     break
 
                 # ----------------- Controller -----------------
-                instruction, response_emb, selectec_idx = self.controller(instructions, probs)  #TODO:MODIFY
+                instruction, response_emb, selectec_idx = await self.controller(query, current_step_index, instructions, probs, state_memory_bank)   #TODO:MODIFY
                 t = timer.time(timer_msg := f"Controller in Step {current_step_index}")
                 logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
 
@@ -313,7 +313,7 @@ class HydraWithRL(Hydra):
                     break
 
                 # ----------------- Controller -----------------
-                instruction, response_emb, selectec_idx = self.controller(instructions, probs)  #TODO:MODIFY
+                instruction, response_emb, selectec_idx = await self.controller(query, current_step_index, instructions, probs, state_memory_bank)   #TODO:MODIFY
                 t = timer.time(timer_msg := f"Controller in Step {current_step_index}")
                 logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
 
@@ -383,7 +383,7 @@ class HydraTrainingRL(Hydra):
             Config.base_config["planner_max_retry"])
 
         embedding_prompt_base = N.io.read.text(str(prompt_path / "embedding.prompt"))
-        self.controller = ControllerDQN(embedding_prompt_base, task_description_for_instruction)  # TODO:MODIFY
+        self.controller = ControllerDQN(embedding_prompt_base, task_description_for_instruction, instruction_examples)  # TODO:MODIFY
 
         self.reasoner = Reasoner(
             code_prompt_base,
@@ -432,7 +432,7 @@ class HydraTrainingRL(Hydra):
                     break
 
                 # ----------------- Controller -----------------
-                instruction, response_emb, selectec_idx = self.controller(instructions, probs)
+                instruction, response_emb, selectec_idx = await self.controller(query, current_step_index, instructions, probs, state_memory_bank) 
                 t = timer.time(timer_msg := f"Controller in Step {current_step_index}")
                 logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
 
@@ -513,7 +513,7 @@ class HydraTrainingRL(Hydra):
                     break
 
                 # ----------------- Controller -----------------
-                instruction, response_emb, selectec_idx = self.controller(instructions, probs)
+                instruction, response_emb, selectec_idx = await self.controller(query, current_step_index, instructions, probs, state_memory_bank) 
                 t = timer.time(timer_msg := f"Controller in Step {current_step_index}")
                 logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
 

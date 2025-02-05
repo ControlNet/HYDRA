@@ -1,7 +1,7 @@
 import abc
 
 import numpy as np
-from rl_DQN import DQN_EmbeddingViaLLM, ReplayBuffer
+from .rl_DQN import DQN_EmbeddingViaLLM, ReplayBuffer
 from ..util.config import Config
 from .smb.state_memory_bank import StateMemoryBank
 from .llm import llm
@@ -26,9 +26,9 @@ class ControllerLLM(Controller):
 
 
 class ControllerDQN(Controller):
-    def __init__(self, embedding_prompt_base, task_description_for_instruction):
+    def __init__(self, embedding_prompt_base, task_description_for_instruction, instruction_example):
         super().__init__()
-
+        self.instruction_example = instruction_example
         self.embedding_prompt_base = embedding_prompt_base
         self.model_save_path = Config.dqn_config["model_save_path"]
         self.task_description_for_instruction = task_description_for_instruction
@@ -43,7 +43,11 @@ class ControllerDQN(Controller):
                         critic_lr=float(Config.dqn_config["critic_lr"])
                                 )
         # load model
-        if os.path.exists(self.model_save_path+'_critic'):
+        model_full_path = os.path.join(self.model_save_path, Config.dqn_config["model_name"]+'_critic')
+        if not os.path.exists(self.model_save_path):
+            os.makedirs(self.model_save_path)
+
+        if os.path.exists(model_full_path):
             self.rl_agent_model.load_model(self.model_save_path)
 
         if self.rl_agent_train_mode:  # for training
@@ -55,7 +59,7 @@ class ControllerDQN(Controller):
             self.update_times = Config.dqn_config["update_times"]
             self.save_interval = Config.dqn_config["save_interval"]
             self.save_model_obs_num = 0  # accumulate
-            self.best_cum_reward = 0
+            self.best_cum_reward = -100 #TODO:MODIFY
             self.best_score = 0
             self.learn_starts = Config.dqn_config["learn_starts"]
             self.dqn_explore_epsilon = Config.dqn_config["dqn_explore_epsilon"]
@@ -78,7 +82,7 @@ class ControllerDQN(Controller):
         prompt = self.build_prompt(query, current_step_index, instructions, probs, state_memory_bank)
         
         # GET EMBEDDING FROM LLM
-        response_emb = await llm(Config.base_config["llm_embedding_model"], prompt)
+        response_emb = await llm(Config.base_config["embedding_model"], prompt)
 
         affordance_value_array = self.rl_agent_model.get_action(obs=response_emb)
 
@@ -99,7 +103,7 @@ class ControllerDQN(Controller):
     def build_prompt(self, query:str, current_step_index: int, instructions: list[str], probs: np.ndarray, state_memory_bank: StateMemoryBank):
         """Getting prompt based on template"""
         # prompt-for-each-query
-        prompt = self.instruction_prompt_base.replace('[INSERT_QUERY_HERE]', query) # query insert
+        prompt = self.embedding_prompt_base.replace('[INSERT_QUERY_HERE]', query) # query insert
         prompt = prompt.replace('[INSERT_CURRENT_STEP_NO]', str(current_step_index)) # step number insert
 
         # prompt-for-query-type-about-the-dataset

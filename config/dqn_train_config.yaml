@@ -1,5 +1,6 @@
 model_save_path: your-save-path
-rl_agent_train_mode: False # if trainin tune True
+model_name: testing1
+rl_agent_train_mode: True # if trainin tune True
 llm_embedding_dim: 1536 # small, 3072 for large
 mlp_hidden_dim: 512
 critic_layer_num: 4
@@ -13,3 +14,4 @@ dqn_explore_epsilon: 0.2
 dqn_explore_epsilon_decay_rate: 0.02
 dqn_explore_epsilon_decay_interval: 100
 buffer_size: 100000
+training_epoch: 4

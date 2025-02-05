@@ -105,7 +105,7 @@ async def ollama(model_name: str, prompt: str):
 async def llm(model_name: str, prompt: str):
     if model_name.startswith("gpt"):
         return await chatgpt(model_name, prompt)
-    elif model_name.startswith("llm_embedding"):
+    elif "embedding" in model_name:
         return await gpt3_embedding(prompt)
     elif model_name.startswith("llama") or model_name.startswith("deepseek-coder"):
         return await ollama(model_name, prompt)

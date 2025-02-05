@@ -9,6 +9,7 @@ import os
 import pickle
 from collections import deque
 import random
+import torch
 
 class Controller(abc.ABC):
     @abc.abstractmethod
@@ -25,21 +26,21 @@ class ControllerLLM(Controller):
 
 
 class ControllerDQN(Controller):
-    def __init__(self):
+    def __init__(self, embedding_prompt_base, task_description_for_instruction):
         super().__init__()
 
-        self.embedding_prompt_base = Config.dqn_config["embedding_prompt_base"]
+        self.embedding_prompt_base = embedding_prompt_base
         self.model_save_path = Config.dqn_config["model_save_path"]
-        self.task_description_for_instruction = Config.dqn_config["task_description_for_instruction"]
+        self.task_description_for_instruction = task_description_for_instruction
         self.rl_agent_train_mode = Config.dqn_config["rl_agent_train_mode"]
 
         self.rl_agent_model = DQN_EmbeddingViaLLM(
-                        device=Config.dqn_config["device"],
+                        device=torch.device('cuda:0'),
                         llm_embedding_dim_concatsoc=Config.dqn_config["llm_embedding_dim"],
                         mlp_hidden_dim=Config.dqn_config["mlp_hidden_dim"],
                         action_dim=Config.base_config["num_actions"]+1,
                         critic_layer_num=Config.dqn_config["critic_layer_num"],
-                        critic_lr=Config.dqn_config["critic_lr"]
+                        critic_lr=float(Config.dqn_config["critic_lr"])
                                 )
         # load model
         if os.path.exists(self.model_save_path+'_critic'):
@@ -47,7 +48,6 @@ class ControllerDQN(Controller):
 
         if self.rl_agent_train_mode:  # for training
             self.rl_agent_model.train_mode()
-            # self.pre_obs_emb = None
             self.train_log_interval = Config.dqn_config["train_log_interval"]
             self.reward_window = deque(maxlen=self.train_log_interval)
             self.obs_no = 0

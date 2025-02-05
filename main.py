@@ -14,13 +14,17 @@ parser.add_argument("--data_root", type=str, required=True)
 parser.add_argument("--base_config", type=str, required=True)
 parser.add_argument("--model_config", type=str, required=True)
 parser.add_argument("--result_folder", type=str, default="./result")
+parser.add_argument("--dqn_config", type=str)
 args = parser.parse_args()
 
 from hydra_vl4ai.util.config import Config
 Config.base_config_path = args.base_config
+if args.dqn_config:
+    Config.dqn_config_path = args.dqn_config
+    Config.dqn_config["rl_agent_train_mode"] = False
 Config.model_config_path = args.model_config
 
-from hydra_vl4ai.agent.hydra import HydraNoRL
+from hydra_vl4ai.agent.hydra import HydraNoRL, HydraWithRL
 from hydra_vl4ai.util.console import logger, console
 from hydra_vl4ai.util.misc import wait_until_loaded
 import exp_datasets
@@ -29,7 +33,11 @@ import exp_datasets
 async def main():
     with console.status("[bold green]Connect to HYDRA executor...") as status:
         wait_until_loaded(f"http://localhost:{Config.base_config['executor_port']}")
-    hydra = HydraNoRL()
+    
+    if not args.dqn_config:
+        hydra = HydraNoRL()
+    else:
+        hydra =HydraWithRL()
 
     match Config.base_config["dataset"]:
         case "gqa":

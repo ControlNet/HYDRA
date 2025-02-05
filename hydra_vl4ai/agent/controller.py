@@ -10,6 +10,7 @@ import pickle
 from collections import deque
 import random
 import torch
+from hydra_vl4ai.util.console import logger
 
 class Controller(abc.ABC):
     @abc.abstractmethod
@@ -43,12 +44,17 @@ class ControllerDQN(Controller):
                         critic_lr=float(Config.dqn_config["critic_lr"])
                                 )
         # load model
-        model_full_path = os.path.join(self.model_save_path, Config.dqn_config["model_name"]+'_critic')
+        model_full_path = os.path.join(self.model_save_path, Config.dqn_config["model_name"])
         if not os.path.exists(self.model_save_path):
             os.makedirs(self.model_save_path)
 
         if os.path.exists(model_full_path):
-            self.rl_agent_model.load_model(self.model_save_path)
+            self.rl_agent_model.load_model(model_full_path)
+            logger.info("Load Model Done!!!")
+        else:
+            import pdb
+            pdb.set_trace()
+            raise RuntimeError(f"Model is not found: {model_full_path}")
 
         if self.rl_agent_train_mode:  # for training
             self.rl_agent_model.train_mode()

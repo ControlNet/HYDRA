@@ -213,7 +213,8 @@ class HydraWithRL(Hydra):
             num_actions,
             Config.base_config["planner_max_retry"])
 
-        self.controller = ControllerDQN()  # TODO:MODIFY
+        embedding_prompt_base = N.io.read.text(str(prompt_path / "embedding.prompt"))
+        self.controller = ControllerDQN(embedding_prompt_base, task_description_for_instruction)  # TODO:MODIFY
 
         self.reasoner = Reasoner(
             code_prompt_base,
@@ -381,7 +382,8 @@ class HydraTrainingRL(Hydra):
             num_actions,
             Config.base_config["planner_max_retry"])
 
-        self.controller = ControllerDQN()  # TODO:MODIFY
+        embedding_prompt_base = N.io.read.text(str(prompt_path / "embedding.prompt"))
+        self.controller = ControllerDQN(embedding_prompt_base, task_description_for_instruction)  # TODO:MODIFY
 
         self.reasoner = Reasoner(
             code_prompt_base,

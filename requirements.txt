@@ -28,4 +28,4 @@ scipy==1.14.1
 gdown==5.2.0
 rich==13.7.1
 ollama==0.3.*
-gradio
+gradio>=5.0,<5.12

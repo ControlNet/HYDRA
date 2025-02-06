@@ -71,7 +71,7 @@ git clone https://github.com/ControlNet/HYDRA
 
 Option 1: Using [pixi](https://prefix.dev/) (recommended):
 ```Bash
-pixi run install
+pixi install
 pixi shell
 ```
 

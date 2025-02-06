@@ -8,18 +8,16 @@ version = "0.0.0"
 channel-priority = "disabled"
 
 [tasks]
-install_glip = { cmd = "python setup.py clean --all build develop --user", cwd = "module_repos/GLIP", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
-install_sam = { cmd = "uv pip install -e .", cwd = "module_repos/Grounded-Segment-Anything/segment_anything", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
-install_groundingdino = { cmd = "python setup.py clean --all build develop --user", cwd = "module_repos/Grounded-Segment-Anything/GroundingDINO", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
-install_llava = { cmd = "uv pip install -e .", cwd = "module_repos/LLaVA", env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
-install = { cmd = "uv pip install -e . && echo Depedencies installation finished!", depends-on = ["install_glip", "install_sam", "install_groundingdino", "install_llava"], env = { CUDA_HOME = "$CONDA_PREFIX", AM_I_DOCKER = "False", BUILD_WITH_CUDA = "True" } }
-executor = "python -m hydra_vl4ai.executor --base_config config/gqa.yaml --model_config config/model_config_1gpu.yaml"
-download_model = "python -m hydra_vl4ai.download_model --base_config config/gqa.yaml --model_config config/model_config_1gpu.yaml"
+executor = "python -m hydra_vl4ai.executor --base_config config/okvqa.yaml --model_config config/model_config_1gpu.yaml"
+download_model = "python -m hydra_vl4ai.download_model --base_config config/okvqa.yaml --model_config config/model_config_1gpu.yaml"
 
 [build-dependencies]
 setuptools = "*"
 cmake = "*"
 ninja = "*"
+
+[pypi-options]
+no-build-isolation = ["maskrcnn_benchmark", "segment_anything", "groundingdino", "llava", "hydra_vl4ai"]
 
 [dependencies]
 python = { version = "3.11.*", channel = "anaconda" }
@@ -27,9 +25,10 @@ pytorch = { version = "==2.1.2", channel = "pytorch" }
 torchvision = { version = "==0.16.2", channel = "pytorch" }
 torchaudio = { version = "==2.1.2", channel = "pytorch" }
 pytorch-cuda = { version = "11.8.*", channel = "pytorch" }
-cuda = { version = "11.8.0", channel = "nvidia/label/cuda-11.8.0" }
-cuda-libraries-dev = { version = "11.8.0", channel = "nvidia/label/cuda-11.8.0" }
-cuda-version = "11.8"
+cuda = { version = "==11.8.0", channel = "nvidia/label/cuda-11.8.0" }
+cuda-libraries-dev = { version = "==11.8.0", channel = "nvidia/label/cuda-11.8.0" }
+cuda-version = "==11.8"
+markupsafe = ">2.0,<3.0"
 numpy = "<2.0"
 ipywidgets = ">=8.1.5,<9"
 ipykernel = ">=6.29.5,<7"
@@ -66,3 +65,9 @@ gdown = "==5.2.0"
 rich = "==13.7.1"
 ollama = "~=0.3.0"
 protobuf = "~=3.19.0"
+gradio = ">=5.0,<5.12"
+maskrcnn_benchmark = { path = "module_repos/GLIP", editable = true }
+segment_anything = { path = "module_repos/Grounded-Segment-Anything/segment_anything", editable = true }
+groundingdino = { path = "module_repos/Grounded-Segment-Anything/GroundingDINO", editable = true }
+llava = { path = "module_repos/LLaVA", editable = true }
+hydra_vl4ai = { path = ".", editable = true }

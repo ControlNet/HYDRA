@@ -55,7 +55,7 @@ def handle_openai_exceptions(func):
                 # server side problem, should raise directly
                 raise
             except Exception as e:
-                raise
+                raise e
 
     return wrapper
 

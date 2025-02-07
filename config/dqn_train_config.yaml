@@ -1,6 +1,4 @@
-model_save_path: your-save-path
-model_name: testing1
-rl_agent_train_mode: True # if training tune True
+model_name: dqn_model_example
 llm_embedding_dim: 1536 # small, 3072 for large
 mlp_hidden_dim: 512
 critic_layer_num: 4

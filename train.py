@@ -34,7 +34,7 @@ import exp_datasets
 async def main():
     with console.status("[bold green]Connect to HYDRA executor...") as status:
         wait_until_loaded(f"http://localhost:{Config.base_config['executor_port']}")
-    hydra = HydraWithRL()
+    hydra = HydraWithRL(training=True)
 
     match Config.base_config["dataset"]:
         case "gqa":
@@ -96,9 +96,7 @@ async def main():
                 hydra.controller.best_cum_reward = cum_reward
 
                 # save model
-                hydra.controller.rl_agent_model.save_model(
-                    os.path.join(hydra.controller.model_save_path, Config.dqn_config["model_name"]))
-
+                hydra.controller.save()
                 hydra.controller.save_model_obs_num = 0
 
 

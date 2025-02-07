@@ -182,7 +182,7 @@ class HydraNoRL(Hydra):
 
 class HydraWithRL(Hydra):
 
-    def __init__(self):
+    def __init__(self, training: bool = False):
         super().__init__()
         # load config
         self.dataset = Config.base_config["dataset"]
@@ -218,7 +218,8 @@ class HydraWithRL(Hydra):
         self.controller = ControllerDQN(
             embedding_prompt_base,
             task_description_for_instruction,
-            instruction_examples
+            instruction_examples,
+            training
         )
 
         self.reasoner = Reasoner(

@@ -41,19 +41,19 @@ def handle_openai_exceptions(func):
         for _ in range(max_trial):
             try:
                 return await func(*args, **kwargs)
-            except openai.APITimeoutError as e:
+            except openai.APITimeoutError:
                 pass
-            except openai.APIConnectionError as e:
+            except openai.APIConnectionError:
                 pass
-            except openai.RateLimitError as e:
+            except openai.RateLimitError:
                 time.sleep(1)
                 pass
             except openai.BadRequestError as e:
                 # maybe exceed the length, should raise directly
-                raise
+                raise e
             except openai.APIStatusError as e:
                 # server side problem, should raise directly
-                raise
+                raise e
             except Exception as e:
                 raise e
 
@@ -68,14 +68,14 @@ def handle_ollama_exceptions(func):
         for _ in range(max_trial):
             try:
                 return await func(*args, **kwargs)
-            except httpx.ConnectError as e:
+            except httpx.ConnectError:
                 pass
-            except httpx.ConnectTimeout as e:
+            except httpx.ConnectTimeout:
                 pass
-            except httpx.TimeoutException as e:
+            except httpx.TimeoutException:
                 pass
             except Exception as e:
-                raise
+                raise e
 
     return wrapper
 

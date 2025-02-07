@@ -1,12 +1,13 @@
 import asyncio
-from functools import wraps
 import os
+import time
+from functools import wraps
+
 import httpx
 import numpy as np
-from openai import AsyncOpenAI
-from ollama import AsyncClient, Client
 import openai
-import time
+from ollama import AsyncClient, Client
+from openai import AsyncOpenAI
 
 from ..util.config import Config
 from ..util.console import logger

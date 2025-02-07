@@ -1,13 +1,14 @@
 import io
 import json
+
 import websockets
 from PIL import Image
 
+from .llm import llm
+from .smb.state_memory_bank import StateMemoryBank
 from ..util.config import Config
 from ..util.console import logger
 from ..util.message import ExecutionRequest, ExecutionResult
-from .llm import llm
-from .smb.state_memory_bank import StateMemoryBank
 
 
 class Reasoner:

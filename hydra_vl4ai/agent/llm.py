@@ -56,6 +56,7 @@ def handle_openai_exceptions(func):
                 raise
             except Exception as e:
                 raise
+
     return wrapper
 
 
@@ -75,6 +76,7 @@ def handle_ollama_exceptions(func):
                 pass
             except Exception as e:
                 raise
+
     return wrapper
 
 
@@ -87,10 +89,10 @@ async def chatgpt(model_name: str, prompt: str):
 
 
 @handle_openai_exceptions
-async def gpt3_embedding(prompt: str):
+async def gpt3_embedding(model_name: str, prompt: str):
     async with _semaphore:
-        response = (await openai_client.embeddings.create(input = [prompt],
-            model=Config.base_config["embedding_model"])).data[0].embedding
+        response = (await openai_client.embeddings.create(input=[prompt],
+            model=model_name)).data[0].embedding
     response = np.array(response)
     return response
 
@@ -98,7 +100,7 @@ async def gpt3_embedding(prompt: str):
 @handle_ollama_exceptions
 async def ollama(model_name: str, prompt: str):
     async with _semaphore:
-        response = await ollama_client.chat(model=model_name, 
+        response = await ollama_client.chat(model=model_name,
             messages=[{"role": "user", "content": prompt}], stream=False, )
     return response["message"]["content"]
 
@@ -106,9 +108,14 @@ async def ollama(model_name: str, prompt: str):
 async def llm(model_name: str, prompt: str):
     if model_name.startswith("gpt"):
         return await chatgpt(model_name, prompt)
-    elif "embedding" in model_name:
-        return await gpt3_embedding(prompt)
     elif model_name.startswith("llama") or model_name.startswith("deepseek-coder"):
         return await ollama(model_name, prompt)
+    else:
+        raise ValueError(f"Model {model_name} is not supported.")
+
+
+async def llm_embedding(model_name: str, prompt: str):
+    if model_name in ("text-embedding-3-small", "text-embedding-3-large"):
+        return await gpt3_embedding(model_name, prompt)
     else:
         raise ValueError(f"Model {model_name} is not supported.")

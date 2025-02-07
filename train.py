@@ -2,12 +2,15 @@ import asyncio
 import json
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import numpy as np
 
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_root", type=str, required=True)
 parser.add_argument("--base_config", type=str, required=True)
@@ -17,6 +20,7 @@ parser.add_argument("--dqn_config", type=str, required=True)
 args = parser.parse_args()
 
 from hydra_vl4ai.util.config import Config
+
 Config.base_config_path = args.base_config
 Config.dqn_config_path = args.dqn_config
 Config.model_config_path = args.model_config
@@ -54,17 +58,17 @@ async def main():
             dataset = exp_datasets.Refcoco(args.data_root)
         case _:
             raise ValueError("Invalid dataset")
-        
+
     # output path
     Path(args.result_folder).mkdir(parents=True, exist_ok=True)
     save_path = Path(args.result_folder) / f"result_{Config.base_config['dataset']}.jsonl"
 
-    cum_reward=0 # TODO:modify 
+    cum_reward = 0  # TODO:modify
 
-    for epoch_idx_ in range(Config.dqn_config["training_epoch"]):       
+    for epoch_idx_ in range(Config.dqn_config["training_epoch"]):
         for i, (image_path, datum_id, query, ground_truth) in enumerate(dataset):
-            
-            logger.info(f"Processing {i+1}/{len(dataset)}")
+
+            logger.info(f"Processing {i + 1}/{len(dataset)}")
             with open(image_path, "rb") as f:
                 image_buffer = f.read()
             result = await hydra.train_step(image_buffer, query, ground_truth)
@@ -82,18 +86,19 @@ async def main():
             # training log info
             if hydra.controller.obs_no % hydra.controller.train_log_interval == 0:
                 mean_reward = np.mean(hydra.controller.reward_window)
-                cum_reward = 0.99*cum_reward + 0.01*mean_reward
-                logger.info('---Current step:{}-----Mean Reward:{:.2f}----Cumulative Reward:{:.2f}'.format(hydra.controller.obs_no, mean_reward, cum_reward))
-            
+                cum_reward = 0.99 * cum_reward + 0.01 * mean_reward
+                logger.info('---Current step:{}-----Mean Reward:{:.2f}----Cumulative Reward:{:.2f}'.format(
+                    hydra.controller.obs_no, mean_reward, cum_reward))
+
             if hydra.controller.save_model_obs_num > hydra.controller.save_interval \
                 and hydra.controller.best_cum_reward < cum_reward:
-
                 # update best cumulated reward
                 hydra.controller.best_cum_reward = cum_reward
 
                 # save model
-                hydra.controller.rl_agent_model.save_model(os.path.join(hydra.controller.model_save_path, Config.dqn_config["model_name"]))
-                
+                hydra.controller.rl_agent_model.save_model(
+                    os.path.join(hydra.controller.model_save_path, Config.dqn_config["model_name"]))
+
                 hydra.controller.save_model_obs_num = 0
 
 

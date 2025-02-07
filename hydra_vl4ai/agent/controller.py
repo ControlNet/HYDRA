@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from hydra_vl4ai.util.console import logger
-from .llm import llm
+from .llm import llm_embedding
 from .rl_dqn import DQN_EmbeddingViaLLM, ReplayBuffer
 from .smb.state_memory_bank import StateMemoryBank
 from ..util.config import Config
@@ -96,8 +96,8 @@ class ControllerDQN(Controller):
     ) -> tuple[str, np.ndarray, int]:
         prompt = self.build_prompt(query, current_step_index, instructions, probs, state_memory_bank)
 
-        # GET EMBEDDING FROM LLM
-        response_emb = await llm(Config.base_config["embedding_model"], prompt)
+        # get embedding from llm
+        response_emb = await llm_embedding(Config.base_config["embedding_model"], prompt)
 
         affordance_value_array = self.rl_agent_model.get_action(obs=response_emb)
 

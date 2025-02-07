@@ -135,10 +135,10 @@ class DQN_EmbeddingViaLLM:
 
         return qloss.detach().cpu().item()
 
-    def save_model(self, path):
+    def save_model(self, path: str):
         torch.save(self.critic_head.state_dict(), path)
 
-    def load_model(self, path):
+    def load_model(self, path: str):
         self.critic_head.load_state_dict(torch.load(path))
 
         for tar_param, param in zip(self.tar_critic_head.parameters(), self.critic_head.parameters()):

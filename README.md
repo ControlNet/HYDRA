@@ -50,7 +50,7 @@ We also notice the embedding model is updated by OpenAI as shown in this [link](
 - [x] LLaMA3.1 (ollama) replacement.
 - [x] Gradio Demo
 - [x] GPT-4o Version.
-- [ ] HYDRA with RL
+- [x] HYDRA with RL
 
 
 ## Installation
@@ -86,8 +86,8 @@ If you meet errors, please consider going through the `build_env.sh` file and in
 Edit the file `.env` or setup in CLI to configure the environment variables.
 
 ```
-OPENAI_API_KEY=your-api-key
-OLLAMA_HOST=http://ollama.server:11434
+OPENAI_API_KEY=your-api-key  # if you want to use OpenAI LLMs
+OLLAMA_HOST=http://ollama.server:11434  # if you want to use your OLLaMA server for llama or deepseek
 # do not change this TORCH_HOME variable
 TORCH_HOME=./pretrained_models
 ```

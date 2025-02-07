@@ -12,6 +12,7 @@ from .llm import llm_embedding
 from .rl_dqn import DQN_EmbeddingViaLLM, ReplayBuffer
 from .smb.state_memory_bank import StateMemoryBank
 from ..util.config import Config
+from ..util.misc import get_hydra_root_folder
 
 
 class Controller(abc.ABC):
@@ -33,13 +34,19 @@ class ControllerLLM(Controller):
 
 class ControllerDQN(Controller):
 
-    def __init__(self, embedding_prompt_base: str, task_description_for_instruction: str, instruction_example: str):
+    def __init__(self,
+        embedding_prompt_base: str,
+        task_description_for_instruction: str,
+        instruction_example: str,
+        training: bool = False
+    ):
         super().__init__()
         self.instruction_example = instruction_example
         self.embedding_prompt_base = embedding_prompt_base
-        self.model_save_path = Config.dqn_config["model_save_path"]
+        self.model_name = Config.dqn_config["model_name"]
+        self.model_save_path = get_hydra_root_folder().parent / "ckpt" / self.model_name
         self.task_description_for_instruction = task_description_for_instruction
-        self.rl_agent_train_mode = Config.dqn_config["rl_agent_train_mode"]
+        self.training = training
 
         self.rl_agent_model = DQN_EmbeddingViaLLM(
             device=torch.device('cuda:0'),
@@ -50,19 +57,17 @@ class ControllerDQN(Controller):
             critic_lr=float(Config.dqn_config["critic_lr"])
         )
         # load model
-        model_full_path = os.path.join(self.model_save_path, Config.dqn_config["model_name"])
-        if not os.path.exists(self.model_save_path):
-            os.makedirs(self.model_save_path)
+        self.model_full_path = self.model_save_path / "critic.pt"
+        self.buffer_path = self.model_save_path / "buffer.pickle"
+        self.model_save_path.mkdir(parents=True, exist_ok=True)
 
-        if os.path.exists(model_full_path):
-            self.rl_agent_model.load_model(model_full_path)
-            logger.info("Load Model Done!!!")
-        else:
-            import pdb
-            pdb.set_trace()
-            raise RuntimeError(f"Model is not found: {model_full_path}")
+        if self.model_full_path.exists():
+            self.rl_agent_model.load_model(str(self.model_full_path))
+            logger.info(f"Load Model Done from file: {str(self.model_full_path)}")
+        elif not self.training:  # for inference, if no model, raise error
+            raise RuntimeError(f"Model is not found: {self.model_full_path}")
 
-        if self.rl_agent_train_mode:  # for training
+        if self.training:  # for training
             self.rl_agent_model.train_mode()
             self.train_log_interval = Config.dqn_config["train_log_interval"]
             self.reward_window = deque(maxlen=self.train_log_interval)
@@ -81,8 +86,8 @@ class ControllerDQN(Controller):
                                          * (self.obs_no / self.dqn_explore_epsilon_decay_interval)
 
             # load buffer
-            if os.path.exists(Config.dqn_config["mlp_hidden_dim"]):
-                with open(Config.dqn_config["mlp_hidden_dim"], "rb") as reward_buffer_container:
+            if self.buffer_path.exists():
+                with open(self.buffer_path, "rb") as reward_buffer_container:
                     self.replay_buffer = pickle.load(reward_buffer_container)
                     reward_buffer_container.close()
             else:
@@ -90,6 +95,17 @@ class ControllerDQN(Controller):
 
         else:
             self.rl_agent_model.eval_mode()
+
+    def save(self):
+        self.rl_agent_model.save_model(self.model_full_path)
+        with open(self.buffer_path, "wb") as f:
+            pickle.dump(self.replay_buffer, f)
+
+    def load(self):
+        self.rl_agent_model.load_model(self.model_full_path)
+        if self.training and self.buffer_path.exists():
+            with open(self.buffer_path, "rb") as f:
+                self.replay_buffer = pickle.load(f)
 
     async def __call__(self, query: str, current_step_index: int, instructions: list[str], probs: np.ndarray,
         state_memory_bank: StateMemoryBank
@@ -104,7 +120,7 @@ class ControllerDQN(Controller):
         selected_idx = np.argmax(affordance_value_array)
 
         # random exploration in the beginning.
-        if self.rl_agent_train_mode:
+        if self.training:
             # if it is in the beginning phase, do random exploration!
             if self.obs_no <= self.learn_starts or np.random.random() <= self.dqn_explore_threshold:
                 selected_idx = random.choice(range(len(affordance_value_array)))

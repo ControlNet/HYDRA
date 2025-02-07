@@ -1,14 +1,15 @@
 import asyncio
 import json
 import os
-import requests
-import time
-import tensorneko_util as N
 from pathlib import Path
+
+import tensorneko_util as N
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_root", type=str, required=True)
 parser.add_argument("--base_config", type=str, required=True)
@@ -18,10 +19,10 @@ parser.add_argument("--dqn_config", type=str)
 args = parser.parse_args()
 
 from hydra_vl4ai.util.config import Config
+
 Config.base_config_path = args.base_config
-if args.dqn_config:
+if args.dqn_config is not None:
     Config.dqn_config_path = args.dqn_config
-    Config.dqn_config["rl_agent_train_mode"] = False
 Config.model_config_path = args.model_config
 
 from hydra_vl4ai.agent.hydra import HydraNoRL, HydraWithRL
@@ -33,11 +34,11 @@ import exp_datasets
 async def main():
     with console.status("[bold green]Connect to HYDRA executor...") as status:
         wait_until_loaded(f"http://localhost:{Config.base_config['executor_port']}")
-    
-    if not args.dqn_config:
+
+    if args.dqn_config is None:
         hydra = HydraNoRL()
     else:
-        hydra =HydraWithRL()
+        hydra = HydraWithRL()
 
     match Config.base_config["dataset"]:
         case "gqa":
@@ -61,22 +62,22 @@ async def main():
             dataset = exp_datasets.Refcoco(args.data_root)
         case _:
             raise ValueError("Invalid dataset")
-        
+
     # output path
     Path(args.result_folder).mkdir(parents=True, exist_ok=True)
     save_path = Path(args.result_folder) / f"result_{Config.base_config['dataset']}.jsonl"
-        
+
     # resume if the file exists
     completed = []
     if os.path.exists(save_path):
         prev_results = N.io.read.json(str(save_path))
         completed = [result["datum_id"] for result in prev_results]
-        
+
     for i, (image_path, datum_id, query, ground_truth) in enumerate(dataset):
         if datum_id in completed:
-            logger.info(f"Skipping {i+1}/{len(dataset)}")
+            logger.info(f"Skipping {i + 1}/{len(dataset)}")
             continue
-        logger.info(f"Processing {i+1}/{len(dataset)}")
+        logger.info(f"Processing {i + 1}/{len(dataset)}")
         with open(image_path, "rb") as f:
             image_buffer = f.read()
         result = await hydra(image_buffer, query)
@@ -90,6 +91,7 @@ async def main():
                 "result": result
             }) + "\n")
             f.flush()
+
 
 if __name__ == "__main__":
     asyncio.run(main=main())

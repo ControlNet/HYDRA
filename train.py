@@ -1,12 +1,10 @@
 import asyncio
 import json
 import os
-import requests
-import time
-import tensorneko_util as N
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
+
 import numpy as np
 
 import argparse
@@ -23,7 +21,7 @@ Config.base_config_path = args.base_config
 Config.dqn_config_path = args.dqn_config
 Config.model_config_path = args.model_config
 
-from hydra_vl4ai.agent.hydra import HydraNoRL, HydraTrainingRL
+from hydra_vl4ai.agent.hydra import HydraWithRL
 from hydra_vl4ai.util.console import logger, console
 from hydra_vl4ai.util.misc import wait_until_loaded
 import exp_datasets
@@ -32,7 +30,7 @@ import exp_datasets
 async def main():
     with console.status("[bold green]Connect to HYDRA executor...") as status:
         wait_until_loaded(f"http://localhost:{Config.base_config['executor_port']}")
-    hydra = HydraTrainingRL()
+    hydra = HydraWithRL()
 
     match Config.base_config["dataset"]:
         case "gqa":
@@ -69,7 +67,7 @@ async def main():
             logger.info(f"Processing {i+1}/{len(dataset)}")
             with open(image_path, "rb") as f:
                 image_buffer = f.read()
-            result = await hydra(image_buffer, query, ground_truth)
+            result = await hydra.train_step(image_buffer, query, ground_truth)
             logger.info(f"Query: {query} Answer: {result}")
 
             with open(save_path, "a") as f:
@@ -90,7 +88,7 @@ async def main():
             if hydra.controller.save_model_obs_num > hydra.controller.save_interval \
                 and hydra.controller.best_cum_reward < cum_reward:
 
-                # update best cummulated reward
+                # update best cumulated reward
                 hydra.controller.best_cum_reward = cum_reward
 
                 # save model

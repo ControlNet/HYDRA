@@ -8,7 +8,9 @@ class Config:
     def __init__(self):
         self.model_config_path: str | None = None
         self._base_config_path: str | None = None
+        self._dqn_config_path: str | None = None
         self.base_config: dict[str, Any] = dict()
+        self.dqn_config: dict[str, Any] = dict()
 
     @property
     def base_config_path(self):
@@ -19,3 +21,14 @@ class Config:
         if value is not None:
             self._base_config_path = value
             self.base_config = N.read(value)
+
+
+    @property
+    def dqn_config_path(self):
+        return self._dqn_config_path
+
+    @dqn_config_path.setter
+    def dqn_config_path(self, value):
+        if value is not None:
+            self._dqn_config_path = value
+            self.dqn_config = N.read(value)

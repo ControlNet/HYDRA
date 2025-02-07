@@ -1,5 +1,5 @@
-from .smb.state_memory_bank import StateMemoryBank
 from .llm import llm
+from .smb.state_memory_bank import StateMemoryBank
 from ..util.config import Config
 
 

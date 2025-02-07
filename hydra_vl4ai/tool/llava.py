@@ -1,11 +1,11 @@
-import os.path
+import re
 
 import torch
+from huggingface_hub import snapshot_download
 from llava.conversation import conv_templates
+from llava.mm_utils import process_images, tokenizer_image_token, get_model_name_from_path
 from llava.model.builder import load_pretrained_model
 from llava.utils import disable_torch_init
-from llava.mm_utils import process_images, tokenizer_image_token, get_model_name_from_path
-from huggingface_hub import snapshot_download
 
 from ._base import BaseModel, module_registry
 from ..util.misc import get_root_folder

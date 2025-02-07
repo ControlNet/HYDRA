@@ -5,6 +5,7 @@ import torch
 from numpy import ndarray
 from torch import Tensor
 
+
 def iou_2d(proposal: Union[Tensor, ndarray], target: Union[Tensor, ndarray]) -> Tensor:
     """
     Calculate 2D IOU for M proposals with N targets.
@@ -53,7 +54,6 @@ def iou_2d(proposal: Union[Tensor, ndarray], target: Union[Tensor, ndarray]) -> 
 
 def process_grounding_result(x: str):
     return eval(x)["final_answer"][0][:4]
-
 
 
 def batch_iou_2d(result):

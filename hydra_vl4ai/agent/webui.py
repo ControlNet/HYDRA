@@ -1,16 +1,16 @@
+import gradio as gr
 import tensorneko_util as N
 import websockets
 from websockets import WebSocketClientProtocol
 
-from .smb import StateMemoryBank
-from ..util.console import logger
 from .hydra import HydraNoRL
+from .smb import StateMemoryBank
 from ..util.config import Config
-
-import gradio as gr
+from ..util.console import logger
 
 
 class HydraNoRLWeb(HydraNoRL):
+
     def __init__(self):
         super().__init__()
 
@@ -34,7 +34,8 @@ class HydraNoRLWeb(HydraNoRL):
         messages = [gr.ChatMessage('user', [image_path, query])]
         yield messages, self._format_state_memory()
 
-        async with websockets.connect(f"ws://localhost:{Config.base_config['executor_port']}/ws/") as ws:  # type: ignore
+        async with websockets.connect(
+            f"ws://localhost:{Config.base_config['executor_port']}/ws/") as ws:  # type: ignore
             async for chunk in self._call_vqa(image_bytes, query, self.bank, ws):
                 if chunk[0] == "start":
                     continue
@@ -82,7 +83,7 @@ class HydraNoRLWeb(HydraNoRL):
             result, code = await self.reasoner.initial_run(image, query, websocket)
             t = timer.time(timer_msg := "Reasoner in Step 0")
             logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
-            
+
             if result.type == "error":
                 yield "panic", "Reasoning", result
                 return
@@ -111,7 +112,8 @@ class HydraNoRLWeb(HydraNoRL):
                 t = timer.time(timer_msg := f"Controller in Step {current_step_index}")
                 logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
 
-                yield "stage-completed", "Planning", current_step_index, sorted(zip(instructions, probs), key=lambda x: x[1], reverse=True), instruction
+                yield "stage-completed", "Planning", current_step_index, sorted(zip(instructions, probs),
+                    key=lambda x: x[1], reverse=True), instruction
 
                 # ------------------ Reasoner ------------------
                 yield "start", "Reasoning"
@@ -124,7 +126,7 @@ class HydraNoRLWeb(HydraNoRL):
                 if result.type == "error":
                     yield "error", "Reasoning", result
                     continue
-                
+
                 assert type(code) is str
                 state_memory_bank.extend_memory(
                     result.feedbacks, [code], [instruction], result.variables, result.variable_names
@@ -148,6 +150,6 @@ class HydraNoRLWeb(HydraNoRL):
                 final_result = await self.summarizer.final_guess(query, guesses)
                 t = timer.time(timer_msg := f"Summarizer in Step Final")
                 logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
-                
+
                 yield "final", final_result
                 return

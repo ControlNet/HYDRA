@@ -2,9 +2,9 @@ import json
 
 import numpy as np
 
-from ..util.config import Config
-from .smb.state_memory_bank import StateMemoryBank
 from .llm import llm
+from .smb.state_memory_bank import StateMemoryBank
+from ..util.config import Config
 from ..util.console import logger
 
 

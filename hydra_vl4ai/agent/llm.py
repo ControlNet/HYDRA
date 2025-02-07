@@ -1,12 +1,13 @@
 import asyncio
-from functools import wraps
 import os
+import time
+from functools import wraps
+
 import httpx
 import numpy as np
-from openai import AsyncOpenAI
-from ollama import AsyncClient, Client
 import openai
-import time
+from ollama import AsyncClient, Client
+from openai import AsyncOpenAI
 
 from ..util.config import Config
 from ..util.console import logger
@@ -40,21 +41,22 @@ def handle_openai_exceptions(func):
         for _ in range(max_trial):
             try:
                 return await func(*args, **kwargs)
-            except openai.APITimeoutError as e:
+            except openai.APITimeoutError:
                 pass
-            except openai.APIConnectionError as e:
+            except openai.APIConnectionError:
                 pass
-            except openai.RateLimitError as e:
+            except openai.RateLimitError:
                 time.sleep(1)
                 pass
             except openai.BadRequestError as e:
                 # maybe exceed the length, should raise directly
-                raise
+                raise e
             except openai.APIStatusError as e:
                 # server side problem, should raise directly
-                raise
+                raise e
             except Exception as e:
-                raise
+                raise e
+
     return wrapper
 
 
@@ -66,14 +68,15 @@ def handle_ollama_exceptions(func):
         for _ in range(max_trial):
             try:
                 return await func(*args, **kwargs)
-            except httpx.ConnectError as e:
+            except httpx.ConnectError:
                 pass
-            except httpx.ConnectTimeout as e:
+            except httpx.ConnectTimeout:
                 pass
-            except httpx.TimeoutException as e:
+            except httpx.TimeoutException:
                 pass
             except Exception as e:
-                raise
+                raise e
+
     return wrapper
 
 
@@ -86,10 +89,10 @@ async def chatgpt(model_name: str, prompt: str):
 
 
 @handle_openai_exceptions
-async def gpt3_embedding(prompt: str):
+async def gpt3_embedding(model_name: str, prompt: str):
     async with _semaphore:
-        response = (await openai_client.embeddings.create(input = [prompt],
-            model=Config.base_config["embedding_model"])).data[0].embedding
+        response = (await openai_client.embeddings.create(input=[prompt],
+            model=model_name)).data[0].embedding
     response = np.array(response)
     return response
 
@@ -97,7 +100,7 @@ async def gpt3_embedding(prompt: str):
 @handle_ollama_exceptions
 async def ollama(model_name: str, prompt: str):
     async with _semaphore:
-        response = await ollama_client.chat(model=model_name, 
+        response = await ollama_client.chat(model=model_name,
             messages=[{"role": "user", "content": prompt}], stream=False, )
     return response["message"]["content"]
 
@@ -107,5 +110,12 @@ async def llm(model_name: str, prompt: str):
         return await chatgpt(model_name, prompt)
     elif model_name.startswith("llama") or model_name.startswith("deepseek-coder"):
         return await ollama(model_name, prompt)
+    else:
+        raise ValueError(f"Model {model_name} is not supported.")
+
+
+async def llm_embedding(model_name: str, prompt: str):
+    if model_name in ("text-embedding-3-small", "text-embedding-3-large"):
+        return await gpt3_embedding(model_name, prompt)
     else:
         raise ValueError(f"Model {model_name} is not supported.")

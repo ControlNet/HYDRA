@@ -25,24 +25,24 @@ class StateMemoryBank:
     @property
     def instructions_prompt(self):
         return "\n" + "\n".join(self.instructions)
-    
+
     @property
     def feedbacks_prompt(self):
         return "\n" + "\n".join(self.feedbacks)
-    
+
     @property
     def codes_prompt(self):
         return "\n" + "\n".join(self.codes)
-    
+
     @property
     def variables_prompt(self):
         return "\n" + "\n".join(self.variables)
 
-    def extend_memory(self, 
-        other_feedbacks: list[str], 
-        other_codes: list[str], 
-        other_instructions: list[str], 
-        other_variables: list[str], 
+    def extend_memory(self,
+        other_feedbacks: list[str],
+        other_codes: list[str],
+        other_instructions: list[str],
+        other_variables: list[str],
         other_variable_names: list[str]
     ):
         self.feedbacks.extend(other_feedbacks)
@@ -125,7 +125,8 @@ class StateMemoryBank:
             f"\nThe patches list has been sorted from left to right (horizontal). Now, the first patch in the list corresponds to the leftest position, while the last one corresponds to the rightest position")
 
     def get_sorted_patches_bottom_to_top_message_save(self, name):
-        self.feedbacks.append(f"\nThe patches list has been sorted from bottom to top (vertical). Now, the first patch in the list corresponds to the bottom/low/below position, while the last one corresponds to the top/up/above position.")
+        self.feedbacks.append(
+            f"\nThe patches list has been sorted from bottom to top (vertical). Now, the first patch in the list corresponds to the bottom/low/below position, while the last one corresponds to the top/up/above position.")
 
     def get_sorted_patches_front_to_back_message_save(self, name):
         self.feedbacks.append(

@@ -2,8 +2,8 @@ import argparse
 
 import tensorneko_util as N
 
-from evaluation.grounding_eval import batch_iou_2d
-from evaluation.vqa_eval import GQAeval
+from hydra_vl4ai.evaluation.grounding_eval import batch_iou_2d
+from hydra_vl4ai.evaluation.vqa_eval import GQAeval
 from hydra_vl4ai.util.console import console, logger
 
 if __name__ == '__main__':

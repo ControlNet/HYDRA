@@ -3,12 +3,12 @@ import torchvision.ops.boxes as bops
 import websockets
 from websockets import WebSocketClientProtocol
 
-from evaluation.vqa_eval import GQAeval
 from .controller import ControllerLLM, ControllerDQN
 from .planner import Planner
 from .reasoner import Reasoner
 from .smb import StateMemoryBank
 from .summarizer import Summarizer
+from ..evaluation.vqa_eval import GQAeval
 from ..util.config import Config
 from ..util.console import logger
 from ..util.misc import get_hydra_root_folder
@@ -175,7 +175,7 @@ class HydraNoRL(Hydra):
                     case "final":
                         # ------------------ Summarizer ------------------
                         final_result = await self.summarizer.final_guess(query, guesses)
-                        t = timer.time(timer_msg := f"Summarizer in Step Final")
+                        t = timer.time(timer_msg := "Summarizer in Step Final")
                         logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
                         return final_result
 
@@ -300,7 +300,7 @@ class HydraWithRL(Hydra):
         with N.util.Timer(verbose=False) as timer:
             # initial perception
             result, code = await self.reasoner.initial_run(image, query, websocket)
-            t = timer.time(timer_msg := f"Reasoner in Step 0")
+            t = timer.time(timer_msg := "Reasoner in Step 0")
             logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
             if result.type == "error":
                 return None
@@ -351,7 +351,7 @@ class HydraWithRL(Hydra):
                     case "final":
                         # ------------------ Summarizer ------------------
                         final_result = await self.summarizer.final_guess(query, guesses)
-                        t = timer.time(timer_msg := f"Summarizer in Step Final")
+                        t = timer.time(timer_msg := "Summarizer in Step Final")
                         logger.debug(f"[Timer] {timer_msg}: {t:.4f} sec")
                         return final_result
 
@@ -412,7 +412,7 @@ class HydraWithRL(Hydra):
 
                 # update buffer and model
                 if current_step_index > 1:
-                    # store transition 
+                    # store transition
                     self.controller.replay_buffer.push(pre_obs_emb, selected_idx, sub_reward, response_emb, done=False)
                     self.controller.reward_window.append(sub_reward)
                     self.controller.obs_no += 1
@@ -422,7 +422,7 @@ class HydraWithRL(Hydra):
                         self.controller.rl_agent_model.update(replay_buffer=self.controller.replay_buffer,
                             batch_size=self.controller.batch_size)
 
-                pre_obs_emb = response_emb  # reserve current emb as previous emb 
+                pre_obs_emb = response_emb  # reserve current emb as previous emb
                 self.controller.dqn_explore_threshold = \
                     self.controller.dqn_explore_epsilon - self.controller.dqn_explore_epsilon_decay_rate \
                     * (self.controller.obs_no / self.controller.dqn_explore_epsilon_decay_interval)
@@ -503,7 +503,7 @@ class HydraWithRL(Hydra):
 
                 # update buffer and model
                 if current_step_index > 1:
-                    # store transition 
+                    # store transition
                     self.controller.replay_buffer.push(pre_obs_emb, selected_idx, sub_reward, response_emb, done=False)
                     self.controller.reward_window.append(sub_reward)
                     self.controller.obs_no += 1

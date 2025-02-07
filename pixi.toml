@@ -66,8 +66,8 @@ rich = "==13.7.1"
 ollama = "~=0.3.0"
 protobuf = "~=3.19.0"
 gradio = ">=5.0,<5.12"
-maskrcnn_benchmark = { path = "module_repos/GLIP", editable = true }
-segment_anything = { path = "module_repos/Grounded-Segment-Anything/segment_anything", editable = true }
-groundingdino = { path = "module_repos/Grounded-Segment-Anything/GroundingDINO", editable = true }
-llava = { path = "module_repos/LLaVA", editable = true }
+maskrcnn_benchmark = { path = "module_repos/GLIP" }
+segment_anything = { path = "module_repos/Grounded-Segment-Anything/segment_anything" }
+groundingdino = { path = "module_repos/Grounded-Segment-Anything/GroundingDINO" }
+llava = { path = "module_repos/LLaVA" }
 hydra_vl4ai = { path = ".", editable = true }

@@ -1,4 +1,4 @@
-model_save_path: dataset_nameaokvqa_learn_starts300
+model_name: dataset_nameaokvqa_learn_starts300
 llm_embedding_dim: 1536 # small, 3072 for large
 mlp_hidden_dim: 512
 critic_layer_num: 4

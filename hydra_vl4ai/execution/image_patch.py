@@ -560,7 +560,7 @@ def llm_query(query, context=None, long_answer=True, state_memory_bank=None):
     if not long_answer:
         prompt_ += f'Please provide only a few-word answer. Be very concise, no ranges, no doubt.'
     try:
-        return_answer = asyncio.run(chatgpt(prompt_)) or ""
+        return_answer = asyncio.run(chatgpt("gpt-3.5-turbo-1106", prompt_)) or ""
     except:
         return_answer = 'not answer from gpt'
 

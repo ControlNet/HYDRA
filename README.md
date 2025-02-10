@@ -153,6 +153,23 @@ For example,
 python evaluate.py result/result_okvqa.jsonl okvqa
 ```
 
+## Training Controller with RL(DQN)
+
+```Bash
+python train.py \
+    --data_root <IMAGE_PATH> \
+    --base_config <YOUR-CONFIG-DIR>\
+    --model_config <MODEL-PATH> \
+    --dqn_config <YOUR-DQN-CONFIG-DIR>
+```
+For example,
+```Bash
+python train.py \
+    --data_root ../coco2014 \
+    --base_config ./config/okvqa.yaml\
+    --model_config ./config/model_config_1gpu.yaml \
+    --dqn_config ./config/dqn_debug.yaml
+```
 
 ## Citation
 ```bibtex

@@ -32,7 +32,7 @@ import exp_datasets
 
 
 async def main():
-    with console.status("[bold green]Connect to HYDRA executor...") as status:
+    with console.status("[bold green]Connect to HYDRA executor..."):
         wait_until_loaded(f"http://localhost:{Config.base_config['executor_port']}")
 
     if args.dqn_config is None:

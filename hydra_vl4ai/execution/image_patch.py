@@ -13,7 +13,7 @@ from word2number import w2n
 import tensorneko_util as N
 
 from .toolbox import forward
-from ..agent.llm import chatgpt
+from ..agent.llm import llm
 from ..agent.smb import StateMemoryBank
 from ..util.misc import get_hydra_root_folder, load_json
 from ..util.config import Config
@@ -558,10 +558,10 @@ def llm_query(query, context=None, long_answer=True, state_memory_bank=None):
     prompt_ += f'Could you help me answer the question: {query}.'
 
     if not long_answer:
-        prompt_ += f'Please provide only a few-word answer. Be very concise, no ranges, no doubt.'
+        prompt_ += 'Please provide only a few-word answer. Be very concise, no ranges, no doubt.'
     try:
-        return_answer = asyncio.run(chatgpt("gpt-3.5-turbo-1106", prompt_)) or ""
-    except:
+        return_answer = asyncio.run(llm(Config.base_config["llm_model"], prompt_)) or ""
+    except Exception:
         return_answer = 'not answer from gpt'
 
     # get global description.

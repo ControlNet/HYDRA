@@ -2,6 +2,7 @@ from typing import Any
 from tensorneko_util.util import Singleton
 import tensorneko_util as N
 
+
 @Singleton
 class Config:
 
@@ -21,7 +22,6 @@ class Config:
         if value is not None:
             self._base_config_path = value
             self.base_config = N.read(value)
-
 
     @property
     def dqn_config_path(self):

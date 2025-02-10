@@ -34,7 +34,7 @@
     <a href="https://www.python.org/"><img src="https://img.shields.io/pypi/pyversions/hydra-vl4ai?style=flat-square"></a>
 </div>
 
-**This is the code for the paper [HYDRA: A Hyper Agent for Dynamic Compositional Visual Reasoning](https://link.springer.com/chapter/10.1007/978-3-031-72661-3_8), accepted by ECCV 2024 \[[Project Page](https://hydra-vl4ai.github.io)\]. We released the code that uses Reinforcement Learning (DQN) to fine-tune the LLM🔥🔥🔥**
+**This is the code for the paper [HYDRA: A Hyper Agent for Dynamic Compositional Visual Reasoning](https://link.springer.com/chapter/10.1007/978-3-031-72661-3_8), accepted by ECCV 2024 \[[Project Page](https://hydra-vl4ai.github.io)\]. We released the code that <span style="color: #FF6347; font-weight: bold;">uses Reinforcement Learning (DQN) to fine-tune the LLM</span>🔥🔥🔥**
 
 ## Release
 

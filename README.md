@@ -126,8 +126,9 @@ python demo_gradio.py \
   --base_config <YOUR-CONFIG-DIR> \
   --model_config <MODEL-PATH>
 ```
-<video width="85%" controls> <source src="media/gradio_demo.mov" type="video/mp4"> Your browser does not support the video tag. </video>
+https://github.com/user-attachments/assets/39a897ab-d457-49d2-8527-0d6fe3a3b922
 
+---
 ### Inference dataset
 
 ```Bash

@@ -38,6 +38,7 @@
 
 ## Release
 
+- [2025/02/11] 🤖 HYDRA with RL is released.
 - [2024/08/05] 🚀 [PYPI package](https://pypi.org/project/hydra-vl4ai/) is released.
 - [2024/07/29] 🔥 **HYDRA** is open sourced in GitHub.
 

@@ -54,6 +54,7 @@ We also notice the embedding model is updated by OpenAI as shown in this [link](
 - [x] HYDRA with RL(DQN).
 - [ ] HYDRA with Deepseek R1.
 
+https://github.com/user-attachments/assets/39a897ab-d457-49d2-8527-0d6fe3a3b922
 
 ## Installation
 
@@ -128,7 +129,6 @@ python demo_gradio.py \
   --base_config <YOUR-CONFIG-DIR> \
   --model_config <MODEL-PATH>
 ```
-https://github.com/user-attachments/assets/39a897ab-d457-49d2-8527-0d6fe3a3b922
 
 ---
 ### Inference dataset

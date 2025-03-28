@@ -16,9 +16,6 @@ setuptools = "*"
 cmake = "*"
 ninja = "*"
 
-[pypi-options]
-no-build-isolation = ["maskrcnn_benchmark", "segment_anything", "groundingdino", "llava", "hydra_vl4ai"]
-
 [dependencies]
 python = { version = "3.11.*", channel = "anaconda" }
 pytorch = { version = "==2.1.2", channel = "pytorch" }
@@ -34,14 +31,17 @@ ipywidgets = ">=8.1.5,<9"
 ipykernel = ">=6.29.5,<7"
 pandas = ">=2.2.3,<3"
 
+[pypi-options]
+no-build-isolation = ["maskrcnn_benchmark", "llava", "groundingdino", "segment_anything"]
+
 [pypi-dependencies]
 fastapi = "*"
 uvicorn = "*"
 starlette = "*"
 openai = "*"
 websockets = "~=11.0"
-tensorneko_util = ">=0.3.20,<0.4"
-tensorneko = ">=0.3.20,<0.4"
+tensorneko_util = "==0.3.21"
+tensorneko = "==0.3.21"
 requests = "~=2.0"
 pillow = "~=10.0"
 word2number = "~=1.0"

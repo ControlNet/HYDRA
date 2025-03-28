@@ -1,4 +1,4 @@
-from ._base import module_registry
+from ._base import module_registry, BaseModel
 from .xvlm import XVLMModel
 from .blip import BLIP2Model
 from .depth import DepthEstimationModel

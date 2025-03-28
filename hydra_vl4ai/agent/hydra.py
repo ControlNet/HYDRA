@@ -27,7 +27,7 @@ class HydraNoRL(Hydra):
         dataset = Config.base_config["dataset"]
         prompt_type = Config.base_config["prompt"]
         self.max_iterations = Config.base_config["max_iterations"]
-        self._debug = Config.base_config["debug"]
+        self._debug = Config.debug
         self.task = Config.base_config["task"]
         num_actions = Config.base_config["num_actions"]
         reasoner_max_retry = Config.base_config["reasoner_max_retry"]

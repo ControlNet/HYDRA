@@ -12,18 +12,28 @@ class Toolbox:
 
     def __init__(self) -> None:
         self.consumers = dict()
+        self.loaded_models = []
         self.inited = False
 
-    def init(self):
+    def init(self, external_packages: list[str] | None = None):
         if self.inited:
             return
 
+        if external_packages is not None:
+            for pkg in external_packages:
+                __import__(pkg)
+                
         model_config = N.read(Config.model_config_path)
+        for cuda_id, model_names in model_config["cuda"].items():
+            for model_name in model_names:
+                self.loaded_models.append(model_name)
+
         for cuda_id, model_names in model_config["cuda"].items():
             for model_name in model_names:
                 ModelClass = module_registry[model_name]
                 self.consumers[model_name] = self.make_fn(
                     ModelClass, model_name, cuda_id)
+                logger.debug(f"Model {model_name} loaded on cuda:{cuda_id}")
         self.inited = True
 
     @staticmethod
@@ -49,18 +59,23 @@ class Toolbox:
                 for arg_name in non_given_args:
                     kwargs[arg_name] = [default_dict[arg_name]]
 
-            try:
-                out = model_instance.forward(*args, **kwargs)
-                if model_class.to_batch:
-                    out = out[0]
-            except Exception as e:
-                logger.error(f'Error in {model_name} model:', e)
-                # stack trace
-                console.print_exception(show_locals=True)
-                out = None
+            out = model_instance.forward(*args, **kwargs)
+            if model_class.to_batch:
+                out = out[0]
+            # try:
+            #     out = model_instance.forward(*args, **kwargs)
+            #     if model_class.to_batch:
+            #         out = out[0]
+            # except Exception as e:
+            #     logger.error(f'Error in {model_name} model:', e)
+            #     # stack trace
+            #     console.print_exception(show_locals=True)
+            #     out = None
             return out
 
-        return _function
+        consumer_fn = _function
+        consumer_fn.model = model_instance
+        return consumer_fn
 
     def forward(self, model_name, *args, queues=None, **kwargs):
         """
@@ -73,6 +88,9 @@ class Toolbox:
         except KeyError as e:
             raise KeyError(error_msg.format(list(self.consumers.keys()))) from e
         return out
+    
+    def __getitem__(self, model_name):
+        return self.consumers[model_name].model
 
 
 forward = Toolbox.forward

@@ -3,29 +3,30 @@ fastapi
 uvicorn
 starlette
 openai
-websockets == 11.*
-tensorneko_util == 0.3.20
-requests == 2.*
-pillow == 10.*
-word2number==1.*
-python_dateutil==2.8.*
-timm==0.9.16
-transformers==4.43.*
-tokenizers==0.19.*
-chardet==5.2.*
-python-dotenv==1.0.*
-opencv-python==4.9.*
-accelerate==0.27.*
-bitsandbytes==0.38.1
-nltk==3.8.1
-pydantic==2.*
-yacs==0.1.8
-pycocotools==2.0.6
-prettytable==3.4.1
-ftfy==6.1.1
-torchmetrics==1.4.0.post0
-scipy==1.14.1
-gdown==5.2.0
-rich==13.7.1
-ollama==0.3.*
-gradio>=5.0,<5.12
+websockets
+tensorneko_util >= 0.3.21, < 0.4.0
+requests
+pillow
+word2number
+python_dateutil
+timm == 0.9.16
+transformers
+tokenizers
+chardet
+python-dotenv
+opencv-python
+accelerate
+bitsandbytes
+nltk
+pydantic
+yacs
+pycocotools
+prettytable
+ftfy
+torchmetrics
+scipy
+gdown
+rich
+ollama
+gradio >=5.0, < 5.12
+numpy < 2

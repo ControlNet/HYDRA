@@ -1,7 +1,6 @@
-import re
-
 import torch
-from huggingface_hub import snapshot_download
+import re
+from torchvision import transforms
 from llava.conversation import conv_templates
 from llava.mm_utils import process_images, tokenizer_image_token, get_model_name_from_path
 from llava.model.builder import load_pretrained_model
@@ -17,7 +16,7 @@ class LLaVA(BaseModel):
     def __init__(self, gpu_number=0, model_name: str = "liuhaotian/llava-v1.5-7b"):
         super().__init__(gpu_number)
         self.model_path = get_root_folder() / "pretrained_models" / "llava" / model_name.split("/")[-1]
-        self.model_name = get_model_name_from_path(self.model_path)
+        self.model_name = get_model_name_from_path(str(self.model_path))
         disable_torch_init()
         self.tokenizer, self.model, self.image_processor, self.context_len = load_pretrained_model(self.model_path,
             model_name=self.model_name, model_base=None, load_8bit=False, load_4bit=False)
@@ -70,7 +69,7 @@ class LLaVA(BaseModel):
         prompt = conv.get_prompt()
 
         # from tensor to pil
-        input_image = transforms.ToPILImage()(input_image).convert('RGB')
+        input_image = transforms.functional.to_pil_image(input_image).convert('RGB')
         images = [input_image]
         image_sizes = [x.size for x in images]
         images_tensor = process_images(
@@ -82,7 +81,7 @@ class LLaVA(BaseModel):
         input_ids = (
             tokenizer_image_token(prompt, self.tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt")
             .unsqueeze(0)
-            .cuda()
+            .cuda(self.dev)
         )
 
         with torch.inference_mode():

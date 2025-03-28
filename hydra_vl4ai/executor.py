@@ -3,6 +3,7 @@ import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import argparse
 import traceback
+from functools import partial
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -10,6 +11,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--base_config", type=str, required=True)
 parser.add_argument("--model_config", type=str, required=True)
+parser.add_argument("--external_packages", type=list, nargs="+", default=[])
 args = parser.parse_args()
 
 from .util.config import Config
@@ -25,7 +27,8 @@ from .util.misc import get_description_from_executed_variable_list, get_statemen
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    task = asyncio.create_task(asyncio.to_thread(Toolbox.init))
+    init = partial(Toolbox.init, args.external_packages)
+    task = asyncio.create_task(asyncio.to_thread(init))
     yield
 
 app = FastAPI(lifespan=lifespan)

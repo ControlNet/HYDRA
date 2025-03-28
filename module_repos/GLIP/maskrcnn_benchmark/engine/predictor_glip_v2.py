@@ -20,8 +20,8 @@ from maskrcnn_benchmark.standalone.masker import Masker
 from maskrcnn_benchmark.standalone.serialization import load_state_dict
 from maskrcnn_benchmark.standalone import cv2_util
 
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
+nltk.download('punkt', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet=True)
 
 import timeit
 

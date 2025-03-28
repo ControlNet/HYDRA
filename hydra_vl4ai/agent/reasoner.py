@@ -34,7 +34,7 @@ class Reasoner:
         websocket: websockets.WebSocketClientProtocol
     ) -> tuple[ExecutionResult, str | None]:
         prompt = self.build_prompt(query, instruction, current_step_index, state_memory_bank)
-        if Config.base_config["debug"]:
+        if Config.debug:
             with open("reasoner.txt", "w") as f:
                 f.write(prompt)
 

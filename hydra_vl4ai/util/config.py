@@ -32,3 +32,11 @@ class Config:
         if value is not None:
             self._dqn_config_path = value
             self.dqn_config = N.read(value)
+
+    @property
+    def debug(self):
+        return Config.base_config["debug"]
+    
+    @debug.setter
+    def debug(self, value):
+        Config.base_config["debug"] = value

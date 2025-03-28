@@ -152,8 +152,8 @@ class GLIPModel(BaseModel):
                 return image
 
             @torch.no_grad()
-            def forward(self, image: torch.Tensor, obj: Union[str, list], return_labels: bool = False,
-                        confidence_threshold=None):
+            def forward(self, image: torch.Tensor, obj: Union[str, list], confidence_threshold=None, 
+                        return_labels: bool = False):
 
                 if confidence_threshold is not None:
                     original_confidence_threshold = self.confidence_threshold
@@ -191,6 +191,7 @@ class GLIPModel(BaseModel):
                 height = image.shape[-2]
                 bboxes = torch.stack([bboxes[:, 0], height - bboxes[:, 3], bboxes[:, 2], height - bboxes[:, 1], bboxes[:, 4]], dim=1)
 
+                # Add confidence
                 if confidence_threshold is not None:
                     self.confidence_threshold = original_confidence_threshold
                 if return_labels:

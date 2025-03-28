@@ -694,7 +694,7 @@ def coerce_to_numeric(string, no_string=False):
         pass
 
     # Remove any non-numeric characters except the decimal point and the negative sign
-    string_re = re.sub("[^0-9\.\-]", "", string)
+    string_re = re.sub(r"[^0-9\.\-]", "", string)
 
     if string_re.startswith('-'):
         string_re = '&' + string_re[1:]

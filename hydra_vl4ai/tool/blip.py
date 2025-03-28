@@ -12,8 +12,7 @@ class BLIP2Model(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=0, half_precision=True,
-                 blip_v2_model_type="blip2-flan-t5-xxl"):
+    def __init__(self, gpu_number=0, blip_v2_model_type="blip2-flan-t5-xxl"):
         super().__init__(gpu_number)
 
         # from lavis.models import load_model_and_preprocess
@@ -29,26 +28,25 @@ class BLIP2Model(BaseModel):
         # Device_map must be sequential for manual GPU selection
         try:
             self.model = Blip2ForConditionalGeneration.from_pretrained(
-                get_root_folder() / "pretrained_models" / "blip2" / blip_v2_model_type, load_in_8bit=half_precision,
-                torch_dtype=torch.float16 if half_precision else "auto",
+                get_root_folder() / "pretrained_models" / "blip2" / blip_v2_model_type, load_in_8bit=True,
+                torch_dtype="auto",
                 device_map="sequential", max_memory=max_memory
             )
         except Exception as e:
             # Clarify error message. The problem is that it tries to load part of the model to disk.
             if "had weights offloaded to the disk" in e.args[0]:
-                extra_text = ' You may want to consider setting half_precision to True.' if half_precision else ''
+                extra_text = ' You may want to consider setting quantization to True.'
                 raise MemoryError(f"Not enough GPU memory in GPU {self.dev} to load the model.{extra_text}")
             else:
                 raise e
 
         self.qa_prompt = "Question: {} Short answer:"
         self.caption_prompt = "a photo of"
-        self.half_precision = half_precision
         self.max_words = 50
 
     @torch.no_grad()
     def caption(self, image, prompt=None):
-        inputs = self.processor(images=image, text=prompt, return_tensors="pt").to(self.dev, torch.float16)
+        inputs = self.processor(images=image, text=prompt, return_tensors="pt").to(self.dev)
         generated_ids = self.model.generate(**inputs, length_penalty=1., num_beams=5, max_length=30, min_length=1,
                                             do_sample=False, top_p=0.9, repetition_penalty=1.0,
                                             num_return_sequences=1, temperature=1)
@@ -75,8 +73,6 @@ class BLIP2Model(BaseModel):
     @torch.no_grad()
     def qa(self, image, question):
         inputs = self.processor(images=image, text=question, return_tensors="pt", padding="longest").to(self.dev)
-        if self.half_precision:
-            inputs['pixel_values'] = inputs['pixel_values'].half()
         generated_ids = self.model.generate(**inputs, length_penalty=-1, num_beams=5, max_length=10, min_length=1,
                                             do_sample=False, top_p=0.9, repetition_penalty=1.0,
                                             num_return_sequences=1, temperature=1)

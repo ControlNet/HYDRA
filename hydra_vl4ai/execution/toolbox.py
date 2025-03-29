@@ -23,7 +23,7 @@ class Toolbox:
             for pkg in external_packages:
                 __import__(pkg)
                 
-        model_config = N.read(Config.model_config_path)
+        model_config = Config.model_config
         for cuda_id, model_names in model_config["cuda"].items():
             for model_name in model_names:
                 self.loaded_models.append(model_name)

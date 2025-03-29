@@ -257,8 +257,8 @@ class VQAEval:
                          'the'
                          ]
 
-        self.periodStrip = re.compile("(?!<=\d)(\.)(?!\d)")
-        self.commaStrip = re.compile("(\d)(,)(\d)")
+        self.periodStrip = re.compile(r"(?!<=\d)(\.)(?!\d)")
+        self.commaStrip = re.compile(r"(\d)(,)(\d)")
         self.punct = [';', r"/", '[', ']', '"', '{', '}',
                       '(', ')', '=', '+', '\\', '_', '-',
                       '>', '<', '@', '`', ',', '?', '!']
@@ -485,8 +485,8 @@ class GQAeval:
                          'the'
                          ]
 
-        self.periodStrip = re.compile("(?!<=\d)(\.)(?!\d)")
-        self.commaStrip = re.compile("(\d)(\,)(\d)")
+        self.periodStrip = re.compile(r"(?!<=\d)(\.)(?!\d)")
+        self.commaStrip = re.compile(r"(\d)(\,)(\d)")
         self.punct = [';', r"/", '[', ']', '"', '{', '}',
                       '(', ')', '=', '+', '\\', '_', '-',
                       '>', '<', '@', '`', ',', '?', '!']
@@ -548,7 +548,7 @@ class GQAeval:
         for p, g in zip(prediction, ground_truth):
             stem_prediction = stem_sentence(self.post_process(p))
             stem_ground_truth = stem_sentence(self.post_process(g))
-            if stem_prediction in stem_ground_truth:
+            if stem_ground_truth in stem_prediction:
                 score += 1
         return score / len(prediction)
 
@@ -571,7 +571,7 @@ class GQAeval:
             if print_model:
                 print(f'self.post_process(p):{stem_prediction}')
                 print(f'self.post_process(g):{stem_ground_truth}')
-            if any([stem_prediction in sub_answer for sub_answer in stem_ground_truth]):
+            if any([sub_answer in stem_prediction for sub_answer in stem_ground_truth]):
                 score += 1
                 if print_model:
                     print(score)

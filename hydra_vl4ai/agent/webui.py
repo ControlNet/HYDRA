@@ -2,6 +2,8 @@ import gradio as gr
 import tensorneko_util as N
 import websockets
 from websockets import WebSocketClientProtocol
+from PIL import Image
+import io
 
 from .hydra import HydraNoRL
 from .smb import StateMemoryBank
@@ -26,8 +28,16 @@ class HydraNoRLWeb(HydraNoRL):
     async def _gradio_call(self, image_path: str, query: str):
         logger.info(f"Image path: {image_path}")
 
-        with open(image_path, "rb") as img_file:
-            image_bytes = img_file.read()
+        # Open the image and convert it to RGB
+        with Image.open(image_path) as img:
+            img = img.convert("RGB")
+        
+            # Save the image to a byte array
+            img_byte_arr = io.BytesIO()
+            img.save(img_byte_arr, format="PNG")
+        
+            # Get the value of the buffer
+            image_bytes = img_byte_arr.getvalue()
 
         self.bank = StateMemoryBank()
 

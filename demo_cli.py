@@ -3,6 +3,8 @@ import json
 import os
 import requests
 import time
+import numpy as np
+from PIL import Image
 import tensorneko_util as N
 from pathlib import Path
 from dotenv import load_dotenv
@@ -34,8 +36,15 @@ async def main():
         wait_until_loaded(f"http://localhost:{Config.base_config['executor_port']}")
     hydra = HydraNoRL()
 
-    with open(args.image, "rb") as f:
-        image_buffer = f.read()
+    # with open(args.image, "rb") as f:
+    #     image_buffer = f.read()
+
+    img = Image.open(args.image)
+    img = img.convert("RGB")
+
+    img_array = np.array(img)
+
+    return img_array
     result = await hydra(image_buffer, args.query)
     logger.info(f"Query: {args.query} Answer: {result}")
 

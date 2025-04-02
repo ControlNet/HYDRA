@@ -27,7 +27,8 @@ setup(
     package_data={
         "hydra_vl4ai": [
             "agent/prompt/**", # prompts
-            "assets/*" # other assets
+            "assets/*", # other assets
+            "tool/model/xvlm/config_bert.json" # xvlm assets
         ]
     },
     python_requires='>=3.10',

@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 import torch
@@ -24,6 +25,8 @@ class GroundingDino(BaseModel):
 
         super().__init__(gpu_number)
         path_checkpoint = str(get_root_folder() / "pretrained_models" / "grounding_dino" / "groundingdino_swint_ogc.pth")
+        if not os.path.exists(path_checkpoint):
+            self.prepare()
         config_file = str(get_root_folder() / "module_repos" / "Grounded-Segment-Anything" / "GroundingDINO" / "groundingdino" / "config" / "GroundingDINO_SwinT_OGC.py")
         args = SLConfig.fromfile(config_file) 
         args.device = self.dev

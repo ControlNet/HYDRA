@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from transformers import BertTokenizer
@@ -39,6 +40,8 @@ class XVLMModel(BaseModel):
             'num_heads': [4, 8, 16, 32]
         }
         model = XVLMBase(config_xvlm, use_contrastive_loss=True, vision_config=vision_config)
+        if not os.path.exists(path_checkpoint):
+            self.prepare()
         checkpoint = torch.load(path_checkpoint, map_location='cpu')
         state_dict = checkpoint['model'] if 'model' in checkpoint.keys() else checkpoint
         msg = model.load_state_dict(state_dict, strict=False)

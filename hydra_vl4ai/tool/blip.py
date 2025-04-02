@@ -1,3 +1,4 @@
+import os
 import torch
 import re
 
@@ -23,6 +24,9 @@ class BLIP2Model(BaseModel):
                                       'blip2-opt-2.7b-coco', 'blip2-flan-t5-xl-coco', 'blip2-opt-6.7b-coco']
 
         max_memory = {gpu_number: torch.cuda.mem_get_info(self.dev)[0]}
+
+        if not os.path.exists(get_root_folder() / "pretrained_models" / "blip2" / blip_v2_model_type):
+            self.prepare()
 
         self.processor = Blip2Processor.from_pretrained(get_root_folder() / "pretrained_models" / "blip2" / blip_v2_model_type)
         # Device_map must be sequential for manual GPU selection

@@ -1,3 +1,4 @@
+import os
 from typing import Union
 
 from ..util.config import Config
@@ -26,6 +27,9 @@ class GLIPModel(BaseModel):
         else:  # large
             config_file = working_dir / "configs/glip_Swin_L.yaml"
             weight_file = str(working_dir / "checkpoints/glip_large_model.pth")
+
+        if not os.path.exists(weight_file):
+            self.prepare(model_size)
 
         class OurGLIPDemo(GLIPDemo):
 

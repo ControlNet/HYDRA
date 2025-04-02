@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 from ..util.misc import get_root_folder
@@ -12,6 +13,8 @@ class EfficientSam(BaseModel):
 
     def __init__(self, gpu_number):
         super().__init__(gpu_number)
+        if not os.path.exists(get_root_folder() / "pretrained_models" / "efficient_sam" / "efficientsam_s_gpu.jit"):
+            self.prepare()
         self.model = torch.jit.load(str(get_root_folder() / "pretrained_models" / "efficient_sam" / "efficientsam_s_gpu.jit"), map_location=self.dev)
         self.to_tensor = ToTensor()
 

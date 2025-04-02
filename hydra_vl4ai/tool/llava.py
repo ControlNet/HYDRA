@@ -1,3 +1,4 @@
+import os
 import torch
 import re
 from torchvision import transforms
@@ -5,6 +6,7 @@ from llava.conversation import conv_templates
 from llava.mm_utils import process_images, tokenizer_image_token, get_model_name_from_path
 from llava.model.builder import load_pretrained_model
 from llava.utils import disable_torch_init
+from huggingface_hub import snapshot_download
 
 from ._base import BaseModel, module_registry
 from ..util.misc import get_root_folder
@@ -17,6 +19,8 @@ class LLaVA(BaseModel):
         super().__init__(gpu_number)
         self.model_path = get_root_folder() / "pretrained_models" / "llava" / model_name.split("/")[-1]
         self.model_name = get_model_name_from_path(str(self.model_path))
+        if not os.path.exists(self.model_path):
+            self.prepare(model_name)
         disable_torch_init()
         self.tokenizer, self.model, self.image_processor, self.context_len = load_pretrained_model(self.model_path,
             model_name=self.model_name, model_base=None, load_8bit=False, load_4bit=False)

@@ -70,7 +70,7 @@ def get_description_from_executed_variable_list(executed_variable_list: list[str
         one_variable = local_variables[variable_name]
         description.append(f'{variable_name}: {one_variable}')
         if isinstance(one_variable, ImagePatch):
-            description[-1] += f' patch name: {one_variable.image_name};'
+            description[-1] += f', patch name: {one_variable.image_name}'
     return description
 
 

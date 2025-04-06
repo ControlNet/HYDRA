@@ -40,8 +40,7 @@ class ImagePatch:
 
         if left is None and right is None and upper is None and lower is None:
             self.cropped_image = image
-            self.left = 0
-            self.lower = 0
+            self.left = 0 
             self.right = image.shape[2]  # width
             self.upper = image.shape[1]  # height
         else:

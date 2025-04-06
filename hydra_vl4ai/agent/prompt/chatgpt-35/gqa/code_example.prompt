@@ -39,7 +39,7 @@ E.g.,
     Output: 
         # Check for lemon existence 
         has_lemon = image_patch.exists("lemon")
-        check for bagels existence
+        # check for bagels existence
         has_begel = image_patch.exists("bagels")
         # get final answer, either has_lemon or has_begel is true return 'yes'
         final_answer =  bool_to_yesno(has_lemon or has_begel)

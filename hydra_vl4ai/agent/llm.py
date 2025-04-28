@@ -6,7 +6,7 @@ import os
 from typing import Literal
 import httpx
 import numpy as np
-from openai import NOT_GIVEN, AsyncOpenAI, AsyncAzureOpenAI
+from openai import NOT_GIVEN, AsyncOpenAI, AsyncAzureOpenAI, AzureOpenAI, OpenAI
 from ollama import AsyncClient, Client
 import openai
 import time
@@ -51,20 +51,30 @@ try:
             api_key=os.environ["OPENAI_API_KEY"],
             timeout=30.
         )
+        openai_client_sync = AzureOpenAI(
+            azure_endpoint=os.environ["AZURE_OPENAI_URL"],
+            api_version="2023-07-01-preview",
+            api_key=os.environ["OPENAI_API_KEY"],
+            timeout=30.
+        )
     else:
         openai_client = AsyncOpenAI(timeout=30)
+        openai_client_sync = OpenAI(timeout=30)
 except openai.OpenAIError:
     openai_client = None
+    openai_client_sync = None
     logger.debug("OpenAI API key is not set, ChatGPT will not work.")
 else:
     logger.debug("OpenAI Client is set.")
 
 try:
     ollama_client = AsyncClient(os.environ["OLLAMA_HOST"], timeout=120)
+    ollama_client_sync = Client(os.environ["OLLAMA_HOST"])
     # evaluate the connection
-    Client(os.environ["OLLAMA_HOST"]).ps()
+    ollama_client_sync.ps()
 except (httpx.ConnectError, ConnectionError):
     ollama_client = None
+    ollama_client_sync = None
     logger.debug("OLLAMA server is not available, Llama will not work.")
 else:
     logger.debug("OLLAMA server is set.")
@@ -124,20 +134,20 @@ def handle_ollama_exceptions(func):
 
 
 @handle_openai_exceptions
-async def chatgpt(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str:
+async def chatgpt(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
     response_format = {"type": "json_object"} if format == "json" else NOT_GIVEN
     async with _semaphore:
         response = await openai_client.chat.completions.create(model=model_name,
             messages=messages, response_format=response_format)
         Cost.add(response, model_name)
+        logger.debug(f"Cost: {Cost.cost:.4f}, input: {Cost.input_tokens}, output: {Cost.output_tokens}")
     return response.choices[0].message.content
 
 
 @handle_openai_exceptions
 async def gpt3_embedding(model_name: str, prompt: str):
     async with _semaphore:
-        response = (await openai_client.embeddings.create(input=[prompt],
-            model=model_name)).data[0].embedding
+        response = (await openai_client.embeddings.create(input=[prompt], model=model_name)).data[0].embedding
     response = np.array(response)
     return response
 
@@ -145,17 +155,15 @@ async def gpt3_embedding(model_name: str, prompt: str):
 @handle_ollama_exceptions
 async def ollama(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str:
     async with _semaphore:
-        response = await ollama_client.chat(model=model_name, 
-            messages=messages, stream=False, format=format)
+        response = await ollama_client.chat(model=model_name, messages=messages, stream=False, format=format)
     return response["message"]["content"]
 
 
-async def llm(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str:
+async def llm(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
     if model_name.startswith("gpt"):
         return await chatgpt(model_name, [{"role": "user", "content": prompt}], format)
     else:
         return await ollama(model_name, [{"role": "user", "content": prompt}], format)
-
 
 async def llm_embedding(model_name: str, prompt: str):
     if model_name in ("text-embedding-3-small", "text-embedding-3-large"):
@@ -164,8 +172,82 @@ async def llm_embedding(model_name: str, prompt: str):
         raise ValueError(f"Model {model_name} is not supported.")
 
 
-async def llm_with_message(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str:
+async def llm_with_message(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
     if model_name.startswith("gpt"):
         return await chatgpt(model_name, messages, format)
     else:
         return await ollama(model_name, messages, format)
+
+
+# sync versions
+def handle_openai_exceptions_sync(func):
+    max_trial = Config.base_config["llm_max_retry"]
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        for _ in range(max_trial):
+            try:
+                logger.debug(f"Call OpenAI API. {args, kwargs}")
+                return func(*args, **kwargs)
+            except openai.APITimeoutError as e:
+                logger.error(f"OpenAI API Timeout: {e}")
+                pass
+            except openai.APIConnectionError as e:
+                logger.error(f"OpenAI API Connection Error: {e}")
+                pass
+            except openai.RateLimitError as e:
+                logger.error(f"OpenAI Rate Limit Error: {e}")
+                time.sleep(1)
+                pass
+            except openai.BadRequestError as e:
+                # maybe exceed the length, should raise directly
+                raise e
+            except openai.APIStatusError as e:
+                # server side problem, should raise directly
+                raise e
+            except Exception as e:
+                raise
+            logger.debug(f"Retry OpenAI API call.")
+    return wrapper
+
+
+def handle_ollama_exceptions_sync(func):
+    max_trial = Config.base_config["llm_max_retry"]
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        for _ in range(max_trial):
+            try:
+                return func(*args, **kwargs)
+            except httpx.ConnectError:
+                pass
+            except httpx.ConnectTimeout:
+                pass
+            except httpx.TimeoutException:
+                pass
+            except Exception as e:
+                raise e
+
+    return wrapper
+    
+
+def llm_sync(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
+    if model_name.startswith("gpt"):
+        return chatgpt_sync(model_name, [{"role": "user", "content": prompt}], format)
+    else:
+        return ollama_sync(model_name, [{"role": "user", "content": prompt}], format)
+
+
+@handle_openai_exceptions_sync
+def chatgpt_sync(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
+    response_format = {"type": "json_object"} if format == "json" else NOT_GIVEN
+    response = openai_client_sync.chat.completions.create(model=model_name, messages=messages, response_format=response_format)
+    Cost.add(response, model_name)
+    logger.debug(f"Cost: {Cost.cost:.4f}, input: {Cost.input_tokens}, output: {Cost.output_tokens}")
+    return response.choices[0].message.content
+
+
+@handle_openai_exceptions_sync
+def ollama_sync(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
+    response = ollama_client_sync.chat(model=model_name, messages=[{"role": "user", "content": prompt}], stream=False, format=format)
+    return response["message"]["content"]

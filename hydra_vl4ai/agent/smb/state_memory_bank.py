@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 
 
 class StateMemoryBank:
@@ -21,6 +22,35 @@ class StateMemoryBank:
         self.instructions = []
         self.variables = []  # variable name and descriptions
         self.variable_names = []  # variable names
+
+    def clone(self):
+        new_smb = StateMemoryBank()
+        new_smb.feedbacks = self.feedbacks.copy()
+        new_smb.codes = self.codes.copy()
+        new_smb.instructions = self.instructions.copy()
+        new_smb.variables = self.variables.copy()
+        new_smb.variable_names = self.variable_names.copy()
+        return new_smb
+    
+    def to_dict(self) -> dict[str, list[str]]:
+        return {
+            "feedbacks": self.feedbacks,
+            "codes": self.codes,
+            "instructions": self.instructions,
+            "variables": self.variables,
+            "variable_names": self.variable_names,
+        }
+    
+    @classmethod
+    def from_json(cls, json_str: str) -> StateMemoryBank:
+        data = json.loads(json_str)
+        smb = cls()
+        smb.feedbacks = data["feedbacks"]
+        smb.codes = data["codes"]
+        smb.instructions = data["instructions"]
+        smb.variables = data["variables"]
+        smb.variable_names = data["variable_names"]
+        return smb
 
     @property
     def instructions_prompt(self):

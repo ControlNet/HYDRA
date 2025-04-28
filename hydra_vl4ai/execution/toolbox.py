@@ -1,4 +1,5 @@
 import inspect
+import time
 import tensorneko_util as N
 from tensorneko_util.util import Singleton
 
@@ -31,9 +32,10 @@ class Toolbox:
         for cuda_id, model_names in model_config["cuda"].items():
             for model_name in model_names:
                 ModelClass = module_registry[model_name]
+                t0 = time.perf_counter()
                 self.consumers[model_name] = self.make_fn(
                     ModelClass, model_name, cuda_id)
-                logger.debug(f"Model {model_name} loaded on cuda:{cuda_id}")
+                logger.debug(f"Model {model_name} loaded on cuda:{cuda_id} in {time.perf_counter() - t0:.3f} seconds")
         self.inited = True
 
     @staticmethod
@@ -62,15 +64,6 @@ class Toolbox:
             out = model_instance.forward(*args, **kwargs)
             if model_class.to_batch:
                 out = out[0]
-            # try:
-            #     out = model_instance.forward(*args, **kwargs)
-            #     if model_class.to_batch:
-            #         out = out[0]
-            # except Exception as e:
-            #     logger.error(f'Error in {model_name} model:', e)
-            #     # stack trace
-            #     console.print_exception(show_locals=True)
-            #     out = None
             return out
 
         consumer_fn = _function

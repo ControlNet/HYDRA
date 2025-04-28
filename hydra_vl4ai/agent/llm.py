@@ -16,6 +16,14 @@ from ..util.config import Config
 from ..util.console import logger
 
 
+def parse_model_name(model_spec: str) -> tuple[str, str]:
+    # Used to parse the model specification string
+    # Example: "ollama::deepseek-r1:70b" -> ("ollama", "deepseek-r1:70b")
+    assert "::" in model_spec, "Model specification must contain '::' to separate api_type and model_name"
+    api_type, model_name = model_spec.split("::", 1)
+    return api_type.lower(), model_name
+
+
 @Singleton
 class Cost:
     def __init__(self):
@@ -78,6 +86,38 @@ except (httpx.ConnectError, ConnectionError):
     logger.debug("OLLAMA server is not available, Llama will not work.")
 else:
     logger.debug("OLLAMA server is set.")
+
+# Set up vLLM client (using OpenAI client with custom base URL)
+try:
+    vllm_host = os.environ.get("VLLM_HOST", "")
+    if vllm_host != "":
+        # Get API key from environment variable if set
+        vllm_api_key = os.environ.get("VLLM_API_KEY", "")
+        
+        vllm_client = AsyncOpenAI(
+            base_url=vllm_host,
+            api_key=vllm_api_key,
+            timeout=60.0
+        )
+        vllm_client_sync = OpenAI(
+            base_url=vllm_host,
+            api_key=vllm_api_key,
+            timeout=60.0
+        )
+        vllm_available = True
+        logger.debug(f"vLLM client is initialized with server at {vllm_host}")
+        if vllm_api_key != "":
+            logger.debug("vLLM API key is set")
+    else:
+        vllm_client = None
+        vllm_client_sync = None
+        vllm_available = False
+        logger.debug("VLLM_HOST environment variable is not set, vLLM will not work.")
+except Exception as e:
+    vllm_client = None
+    vllm_client_sync = None
+    vllm_available = False
+    logger.debug(f"Error setting up vLLM client: {e}")
 
 _semaphore = asyncio.Semaphore(Config.base_config["llm_max_concurrency"])
 
@@ -159,24 +199,62 @@ async def ollama(model_name: str, messages: list[dict[str, str]], format: Litera
     return response["message"]["content"]
 
 
-async def llm(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
-    if model_name.startswith("gpt"):
-        return await chatgpt(model_name, [{"role": "user", "content": prompt}], format)
-    else:
-        return await ollama(model_name, [{"role": "user", "content": prompt}], format)
+@handle_openai_exceptions
+async def vllm(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
+    if not vllm_available:
+        raise ValueError("vLLM is not available. Set VLLM_HOST environment variable.")
+    
+    response_format = {"type": "json_object"} if format == "json" else NOT_GIVEN
+    
+    async with _semaphore:
+        try:
+            response = await vllm_client.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                response_format=response_format
+            )
+            # Note: We don't track cost for vLLM
+            logger.debug(f"vLLM API call completed successfully for model: {model_name}")
+        except Exception as e:
+            logger.error(f"Error making vLLM request: {e}")
+            raise
+    
+    return response.choices[0].message.content
 
-async def llm_embedding(model_name: str, prompt: str):
-    if model_name in ("text-embedding-3-small", "text-embedding-3-large"):
+
+async def llm(model_spec: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
+    api_type, model_name = parse_model_name(model_spec)
+    
+    if api_type == "openai":
+        return await chatgpt(model_name, [{"role": "user", "content": prompt}], format)
+    elif api_type == "ollama":
+        return await ollama(model_name, [{"role": "user", "content": prompt}], format)
+    elif api_type == "vllm":
+        return await vllm(model_name, [{"role": "user", "content": prompt}], format)
+    else:
+        raise ValueError(f"Unknown API type: {api_type}")
+
+
+async def llm_embedding(model_spec: str, prompt: str):
+    api_type, model_name = parse_model_name(model_spec)
+    
+    if api_type == "openai" and model_name in ("text-embedding-3-small", "text-embedding-3-large"):
         return await gpt3_embedding(model_name, prompt)
     else:
-        raise ValueError(f"Model {model_name} is not supported.")
+        raise ValueError(f"Model {model_spec} is not supported for embeddings.")
 
 
-async def llm_with_message(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
-    if model_name.startswith("gpt"):
+async def llm_with_message(model_spec: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
+    api_type, model_name = parse_model_name(model_spec)
+    
+    if api_type == "openai":
         return await chatgpt(model_name, messages, format)
-    else:
+    elif api_type == "ollama":
         return await ollama(model_name, messages, format)
+    elif api_type == "vllm":
+        return await vllm(model_name, messages, format)
+    else:
+        raise ValueError(f"Unknown API type: {api_type}")
 
 
 # sync versions
@@ -231,11 +309,17 @@ def handle_ollama_exceptions_sync(func):
     return wrapper
     
 
-def llm_sync(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
-    if model_name.startswith("gpt"):
+def llm_sync(model_spec: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
+    api_type, model_name = parse_model_name(model_spec)
+    
+    if api_type == "openai":
         return chatgpt_sync(model_name, [{"role": "user", "content": prompt}], format)
-    else:
+    elif api_type == "ollama":
         return ollama_sync(model_name, [{"role": "user", "content": prompt}], format)
+    elif api_type == "vllm":
+        return vllm_sync(model_name, [{"role": "user", "content": prompt}], format)
+    else:
+        raise ValueError(f"Unknown API type: {api_type}")
 
 
 @handle_openai_exceptions_sync
@@ -251,3 +335,35 @@ def chatgpt_sync(model_name: str, messages: list[dict[str, str]], format: Litera
 def ollama_sync(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
     response = ollama_client_sync.chat(model=model_name, messages=[{"role": "user", "content": prompt}], stream=False, format=format)
     return response["message"]["content"]
+
+
+@handle_openai_exceptions_sync
+def vllm_sync(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
+    """Make a synchronous request to vLLM server using the OpenAI client library.
+    
+    Args:
+        model_name: The model name to use on the vLLM server
+        messages: List of message dictionaries containing role and content
+        format: Optional format requested ("json" for JSON mode)
+        
+    Returns:
+        The model's response text
+    """
+    if not vllm_available:
+        raise ValueError("vLLM is not available. Set VLLM_HOST environment variable.")
+    
+    response_format = {"type": "json_object"} if format == "json" else NOT_GIVEN
+    
+    try:
+        response = vllm_client_sync.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            response_format=response_format
+        )
+        # Note: We don't track cost for vLLM
+        logger.debug(f"vLLM API call completed successfully for model: {model_name}")
+    except Exception as e:
+        logger.error(f"Error making vLLM request: {e}")
+        raise
+    
+    return response.choices[0].message.content

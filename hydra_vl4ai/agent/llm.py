@@ -2,7 +2,7 @@ import asyncio
 import os
 import time
 from functools import wraps
-import os
+import re
 from typing import Literal
 import httpx
 import numpy as np
@@ -85,7 +85,7 @@ except (httpx.ConnectError, ConnectionError):
     ollama_client_sync = None
     logger.debug("OLLAMA server is not available, Llama will not work.")
 else:
-    logger.debug("OLLAMA server is set.")
+    logger.debug(f"OLLAMA server is set on {os.environ['OLLAMA_HOST']}")
 
 # Set up vLLM client (using OpenAI client with custom base URL)
 try:
@@ -130,7 +130,9 @@ def handle_openai_exceptions(func):
         for _ in range(max_trial):
             try:
                 logger.debug(f"Call OpenAI API. {args, kwargs}")
-                return await func(*args, **kwargs)
+                response = await func(*args, **kwargs)
+                logger.debug(f"Response: {response}")
+                return response
             except openai.APITimeoutError as e:
                 logger.error(f"OpenAI API Timeout: {e}")
                 pass
@@ -160,7 +162,9 @@ def handle_ollama_exceptions(func):
     async def wrapper(*args, **kwargs):
         for _ in range(max_trial):
             try:
-                return await func(*args, **kwargs)
+                response = await func(*args, **kwargs)
+                logger.debug(f"Response: {response}")
+                return response
             except httpx.ConnectError:
                 pass
             except httpx.ConnectTimeout:
@@ -194,9 +198,20 @@ async def gpt3_embedding(model_name: str, prompt: str):
 
 @handle_ollama_exceptions
 async def ollama(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str:
+    # set non-thinking mode
+    if "qwen3" in model_name.lower():
+        messages[-1]["content"] += "/no_think"
+
     async with _semaphore:
         response = await ollama_client.chat(model=model_name, messages=messages, stream=False, format=format)
-    return response["message"]["content"]
+    response_content = response["message"]["content"]
+
+    if "qwen3" in model_name.lower():
+        # remove the <think> part
+        pattern = r"<think>\s*?</think>"
+        response_content = re.sub(pattern, "", response_content, flags=re.DOTALL)
+        response_content = response_content.lstrip("\n")
+    return response_content
 
 
 @handle_openai_exceptions
@@ -207,17 +222,11 @@ async def vllm(model_name: str, messages: list[dict[str, str]], format: Literal[
     response_format = {"type": "json_object"} if format == "json" else NOT_GIVEN
     
     async with _semaphore:
-        try:
-            response = await vllm_client.chat.completions.create(
-                model=model_name,
-                messages=messages,
-                response_format=response_format
-            )
-            # Note: We don't track cost for vLLM
-            logger.debug(f"vLLM API call completed successfully for model: {model_name}")
-        except Exception as e:
-            logger.error(f"Error making vLLM request: {e}")
-            raise
+        response = await vllm_client.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            response_format=response_format
+        )
     
     return response.choices[0].message.content
 
@@ -325,45 +334,37 @@ def llm_sync(model_spec: str, prompt: str, format: Literal["", "json"] = "") -> 
 @handle_openai_exceptions_sync
 def chatgpt_sync(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
     response_format = {"type": "json_object"} if format == "json" else NOT_GIVEN
-    response = openai_client_sync.chat.completions.create(model=model_name, messages=messages, response_format=response_format)
+    response = openai_client_sync.chat.completions.create(model=model_name,
+            messages=messages, response_format=response_format)
     Cost.add(response, model_name)
     logger.debug(f"Cost: {Cost.cost:.4f}, input: {Cost.input_tokens}, output: {Cost.output_tokens}")
     return response.choices[0].message.content
 
 
 @handle_openai_exceptions_sync
-def ollama_sync(model_name: str, prompt: str, format: Literal["", "json"] = "") -> str | None:
-    response = ollama_client_sync.chat(model=model_name, messages=[{"role": "user", "content": prompt}], stream=False, format=format)
-    return response["message"]["content"]
+def ollama_sync(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
+    response = ollama_client_sync.chat(model=model_name, messages=messages, stream=False, format=format)
+    response_content = response["message"]["content"]
+
+    if "qwen3" in model_name.lower():
+        # remove the <think> part
+        pattern = r"<think>\s*?</think>"
+        response_content = re.sub(pattern, "", response_content, flags=re.DOTALL)
+        response_content = response_content.lstrip("\n")
+    return response_content
 
 
 @handle_openai_exceptions_sync
 def vllm_sync(model_name: str, messages: list[dict[str, str]], format: Literal["", "json"] = "") -> str | None:
-    """Make a synchronous request to vLLM server using the OpenAI client library.
-    
-    Args:
-        model_name: The model name to use on the vLLM server
-        messages: List of message dictionaries containing role and content
-        format: Optional format requested ("json" for JSON mode)
-        
-    Returns:
-        The model's response text
-    """
     if not vllm_available:
         raise ValueError("vLLM is not available. Set VLLM_HOST environment variable.")
     
     response_format = {"type": "json_object"} if format == "json" else NOT_GIVEN
     
-    try:
-        response = vllm_client_sync.chat.completions.create(
-            model=model_name,
-            messages=messages,
-            response_format=response_format
-        )
-        # Note: We don't track cost for vLLM
-        logger.debug(f"vLLM API call completed successfully for model: {model_name}")
-    except Exception as e:
-        logger.error(f"Error making vLLM request: {e}")
-        raise
+    response = vllm_client_sync.chat.completions.create(
+        model=model_name,
+        messages=messages,
+        response_format=response_format
+    )
     
     return response.choices[0].message.content

@@ -5,7 +5,6 @@ llm_model: "openai::gpt-4o-mini"  # "gpt-3.5-turbo-0630"
 llm_code_model: "openai::gpt-4o-mini"  # "gpt-3.5-turbo-0630"
 embedding_model: "openai::text-embedding-3-small"
 
-debug: True
 executor_port: 31888
 llm_max_retry: 3
 planner_max_retry: 5

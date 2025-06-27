@@ -24,7 +24,7 @@ class ImagePatch:
         Returns a dictionary. Each pair includes a list of ImagePatch objects matching the object_name contained in the crop, if any are found. 
     simple_query(question: str) ->str
         Gnerate caption of image or get the answer to a basic question asked about the image. If no question is provided, returns the answer to "What is this?".
-    llm_query(query, context:str=None, long_answer=True)
+    llm_query(question: str, context:str=None, long_answer=True)
         References a large language model (e.g., GPT) to produce a response to the given question.
     compute_depth() ->float
         Returns the median depth of the image crop.
@@ -116,13 +116,13 @@ class ImagePatch:
         '''
         return simple_query(self.cropped_image, question, qa_mode)
         
-    def llm_query(query, context:str=None, long_answer=True) ->str:
+    def llm_query(question: str, context:str=None, long_answer=True) ->str:
         '''
         Returns textual answer from llm (str).The input question is always a formatted string with a variable in it.
 
         Parameters
         ----------
-        query: str
+        question: str
             the text question to ask. Must not contain any reference to 'the image' or 'the photo', etc.
         context: str
             the context about the question.

@@ -1,11 +1,7 @@
 import torch
 from torch.nn import functional as F
 from torchvision import transforms
-from typing import Dict, Sequence, Union
-import torchmetrics
-from torch import Tensor
-from torchvision.transforms import Compose, Resize, CenterCrop, Normalize, RandomHorizontalFlip, RandomRotation
-from torchvision.transforms import InterpolationMode
+from typing import Union
 
 from ..util.misc import get_root_folder
 from ._base import BaseModel, module_registry

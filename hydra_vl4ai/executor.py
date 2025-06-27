@@ -25,10 +25,17 @@ from .execution.toolbox import Toolbox
 from .util.message import ExecutionRequest, ExecutionResult
 from .util.misc import get_description_from_executed_variable_list, get_statement_variable, load_image_from_bytes
 
+
+def run_init():
+    try:
+        Toolbox.init(args.external_packages)
+    except Exception as e:
+        print(f"Error initializing toolbox: {e}")
+        exit(1)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init = partial(Toolbox.init, args.external_packages)
-    task = asyncio.create_task(asyncio.to_thread(init))
+    task = asyncio.create_task(asyncio.to_thread(run_init))
     yield
 
 app = FastAPI(lifespan=lifespan)

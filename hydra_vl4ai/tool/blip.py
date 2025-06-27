@@ -3,6 +3,7 @@ import torch
 import re
 
 from huggingface_hub import snapshot_download
+from transformers import BitsAndBytesConfig
 
 from ._base import BaseModel, module_registry
 from ..util.misc import get_root_folder
@@ -32,9 +33,10 @@ class BLIP2Model(BaseModel):
         # Device_map must be sequential for manual GPU selection
         try:
             self.model = Blip2ForConditionalGeneration.from_pretrained(
-                get_root_folder() / "pretrained_models" / "blip2" / blip_v2_model_type, load_in_8bit=True,
+                get_root_folder() / "pretrained_models" / "blip2" / blip_v2_model_type,
                 torch_dtype="auto",
-                device_map="sequential", max_memory=max_memory
+                device_map="sequential", max_memory=max_memory,
+                quantization_config=BitsAndBytesConfig(load_in_4bit=True)
             )
         except Exception as e:
             # Clarify error message. The problem is that it tries to load part of the model to disk.

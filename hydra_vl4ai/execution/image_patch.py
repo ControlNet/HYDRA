@@ -542,12 +542,12 @@ def bool_to_yesno(bool_answer: bool) -> str:
     return "yes" if bool_answer else "no"
 
 
-def llm_query(query, context=None, long_answer=True, state_memory_bank=None):
+def llm_query(question, context=None, long_answer=True, state_memory_bank=None):
     """Answers a text question using GPT-3. The input question is always a formatted string with a variable in it.
 
     Parameters
     ----------
-    query: str
+    question: str
         the text question to ask. Must not contain any reference to 'the image' or 'the photo', etc.
     """
     if context != None:
@@ -555,7 +555,7 @@ def llm_query(query, context=None, long_answer=True, state_memory_bank=None):
     else:
         prompt_ = ''
 
-    prompt_ += f'Could you help me answer the question: {query}.'
+    prompt_ += f'Could you help me answer the question: {question}.'
 
     if not long_answer:
         prompt_ += 'Please provide only a few-word answer. Be very concise, no ranges, no doubt.'
@@ -565,7 +565,7 @@ def llm_query(query, context=None, long_answer=True, state_memory_bank=None):
         return_answer = 'not answer from gpt'
 
     # get global description.
-    state_memory_bank.llm_add_feedback(query, context, return_answer)
+    state_memory_bank.llm_add_feedback(question, context, return_answer)
 
     return return_answer
 

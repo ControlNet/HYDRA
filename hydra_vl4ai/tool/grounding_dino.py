@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import torch
 
@@ -20,13 +19,18 @@ import groundingdino.datasets.transforms as T
 @module_registry.register("grounding_dino")
 class GroundingDino(BaseModel):
 
-    def __init__(self, gpu_number=0):
+    def __init__(self, gpu_number=0, arch="swint"):
+        assert gpu_number == 0, "GroundingDino only works in cuda:0, see https://github.com/IDEA-Research/GroundingDINO/issues/103"
 
         super().__init__(gpu_number)
-        path_checkpoint = str(get_root_folder() / "pretrained_models" / "grounding_dino" / "groundingdino_swint_ogc.pth")
-        if not os.path.exists(path_checkpoint):
-            self.prepare()
-        config_file = str(get_root_folder() / "module_repos" / "Grounded-Segment-Anything" / "GroundingDINO" / "groundingdino" / "config" / "GroundingDINO_SwinT_OGC.py")
+
+        if arch == "swinb":
+            path_checkpoint = str(get_root_folder() / "pretrained_models" / "grounding_dino" / "groundingdino_swinb_cogcoor.pth")
+            config_file = str(get_root_folder() / "module_repos" / "Grounded-Segment-Anything" / "GroundingDINO" / "groundingdino" / "config" / "GroundingDINO_SwinB.py")
+        else:
+            path_checkpoint = str(get_root_folder() / "pretrained_models" / "grounding_dino" / "groundingdino_swint_ogc.pth")
+            config_file = str(get_root_folder() / "module_repos" / "Grounded-Segment-Anything" / "GroundingDINO" / "groundingdino" / "config" / "GroundingDINO_SwinT_OGC.py")
+
         args = SLConfig.fromfile(config_file) 
         args.device = self.dev
         self.deivce = self.dev
@@ -92,7 +96,12 @@ class GroundingDino(BaseModel):
         return np.concatenate([transfered_boxes, confidences[:, None].numpy()], axis=1)
     
     @classmethod
-    def prepare(cls):
+    def prepare(cls, arch="swinb"):
+        if arch == "swinb":
+            checkpoint_url = "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha2/groundingdino_swinb_cogcoor.pth"
+        else:
+            checkpoint_url = "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
+
         working_dir = get_root_folder() / "pretrained_models" / "grounding_dino"
         working_dir.mkdir(parents=True, exist_ok=True)
-        N.util.download_file("https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth", str(working_dir))
+        N.util.download_file(checkpoint_url, str(working_dir))

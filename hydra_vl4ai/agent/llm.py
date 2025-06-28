@@ -144,13 +144,13 @@ def handle_openai_exceptions(func):
                 time.sleep(1)
                 pass
             except openai.BadRequestError as e:
-                # maybe exceed the length, should raise directly
+                # maybe trigger the content filter, raise directly
                 raise e
             except openai.APIStatusError as e:
                 # server side problem, should raise directly
                 raise e
             except Exception as e:
-                raise
+                raise e
             logger.debug(f"Retry OpenAI API call.")
     return wrapper
 

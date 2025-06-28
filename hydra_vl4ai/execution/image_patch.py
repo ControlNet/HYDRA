@@ -10,10 +10,9 @@ from torchvision import transforms
 from torchvision.ops import box_iou
 from typing import Union, List
 from word2number import w2n
-import tensorneko_util as N
 
 from .toolbox import forward
-from ..agent.llm import llm
+from ..agent.llm import llm, llm_sync
 from ..agent.smb import StateMemoryBank
 from ..util.misc import get_hydra_root_folder, load_json
 from ..util.config import Config
@@ -446,10 +445,16 @@ class ImagePatch:
         return "ImagePatch({}, {}, {}, {})".format(self.left, self.lower, self.right, self.upper)
 
     def to_bbox(self):
-        x0 = self.left + 10
-        x1 = self.right - 10
-        y0 = self.original_image.shape[1] - self.upper + 10
-        y1 = self.original_image.shape[1] - self.lower - 10
+        if Config.base_config['crop_larger_margin']:
+            x0 = self.left + 10
+            x1 = self.right - 10
+            y0 = self.original_image.shape[1] - self.upper + 10
+            y1 = self.original_image.shape[1] - self.lower - 10
+        else:
+            x0 = self.left
+            x1 = self.right
+            y0 = self.original_image.shape[1] - self.upper
+            y1 = self.original_image.shape[1] - self.lower
         return [x0, y0, x1, y1, float(self.confidence)]
 
 
@@ -560,7 +565,7 @@ def llm_query(question, context=None, long_answer=True, state_memory_bank=None):
     if not long_answer:
         prompt_ += 'Please provide only a few-word answer. Be very concise, no ranges, no doubt.'
     try:
-        return_answer = asyncio.run(llm(Config.base_config["llm_model"], prompt_)) or ""
+        return_answer = llm_sync(Config.base_config["llm_model"], prompt_) or ""
     except Exception:
         return_answer = 'not answer from gpt'
 

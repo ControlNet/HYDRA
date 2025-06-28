@@ -34,10 +34,6 @@ class Reasoner:
         websocket: websockets.WebSocketClientProtocol
     ) -> tuple[ExecutionResult, str | None]:
         prompt = self.build_prompt(query, instruction, current_step_index, state_memory_bank)
-        if Config.debug:
-            with open("reasoner.txt", "w") as f:
-                f.write(prompt)
-
         assert self.num_trials > 0
         result = ExecutionResult.from_dict({
             "type": "error",

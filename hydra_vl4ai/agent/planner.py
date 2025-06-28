@@ -25,9 +25,6 @@ class Planner:
 
     async def __call__(self, query: str, current_step_index: int, state_memory_bank: StateMemoryBank):
         prompt = self.build_prompt(query, current_step_index, state_memory_bank)
-        if Config.debug:
-            with open("planner.txt", "w") as f:
-                f.write(prompt)
         instructions = []
         probs = []
         for _ in range(self.num_trials):

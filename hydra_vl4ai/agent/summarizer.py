@@ -16,9 +16,6 @@ class Summarizer:
 
     async def __call__(self, query: str, state_memory_bank: StateMemoryBank) -> str:
         prompt = self.build_summarizer_prompt(query, state_memory_bank)
-        if Config.debug:
-            with open("summarizer.txt", "w") as f:
-                f.write(prompt)
         response = await llm(Config.base_config["llm_model"], prompt) or ""
         return response
 

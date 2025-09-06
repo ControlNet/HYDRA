@@ -1,10 +1,4 @@
 import asyncio
-import json
-import os
-import requests
-import time
-import tensorneko_util as N
-from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,12 +11,14 @@ parser.add_argument("--query", type=str, required=True)
 parser.add_argument("--base_config", type=str, required=True)
 parser.add_argument("--model_config", type=str, required=True)
 parser.add_argument("--result_folder", type=str, default="./result")
+parser.add_argument("--debug", action="store_true")
 args = parser.parse_args()
 
 from hydra_vl4ai.util.config import Config
 
 Config.base_config_path = args.base_config
 Config.model_config_path = args.model_config
+Config.debug = args.debug
 
 from hydra_vl4ai.agent.hydra import HydraNoRL
 from hydra_vl4ai.util.console import logger, console

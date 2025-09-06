@@ -1,4 +1,7 @@
 import tensorneko_util as N
+from dotenv import load_dotenv
+
+load_dotenv()
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--base_config", type=str, required=True)
